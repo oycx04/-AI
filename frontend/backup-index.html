@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手平台 - 统一导航</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f5f9fc 0%, #ffeef8 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .nav-btn {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+            color: white;
+            border-color: #2196f3;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .page-frame {
+            width: 100%;
+            height: calc(100vh - 80px);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            background: white;
+            transition: opacity 0.3s ease;
+        }
+        
+        .page-frame.hidden {
+            display: none;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 182, 193, 0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .logo-text {
+            background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 80px);
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 统一导航栏将通过JavaScript动态插入 -->
+    
+    <!-- 页面内容区域 -->
+    <div class="pt-20 px-4 pb-4">
+        <!-- 加载提示 -->
+        <div id="loadingIndicator" class="loading hidden">
+            <div class="spinner"></div>
+            <span>正在加载页面...</span>
+        </div>
+        
+        <!-- 卷王AI页面 -->
+        <iframe id="chatFrame" 
+                class="page-frame" 
+                src="AI对话框校园风修改-4126c8295c.html"
+                title="卷王AI">
+        </iframe>
+        
+        <!-- AI画师助手页面 -->
+        <iframe id="artFrame" 
+                class="page-frame hidden" 
+                src="简易AI前端修改设计-493d540767.html"
+                loading="lazy">
+        </iframe>
+        
+        <!-- 学习路径生成器页面 -->
+        <iframe id="learningFrame" 
+                class="page-frame hidden" 
+                src="learning-path-generator.html"
+                loading="lazy">
+        </iframe>
+    </div>
+    
+    <script>
+        // 页面切换功能
+        const chatTab = document.getElementById('chatTab');
+        const artTab = document.getElementById('artTab');
+        const learningTab = document.getElementById('learningTab');
+        const chatFrame = document.getElementById('chatFrame');
+        const artFrame = document.getElementById('artFrame');
+        const learningFrame = document.getElementById('learningFrame');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // 切换到卷王AI
+        function switchToChat(e) {
+            if (e) e.preventDefault();
+            
+            // 显示加载提示
+            showLoading();
+            
+            setTimeout(() => {
+                // 更新按钮状态
+                chatTab.classList.add('active');
+                artTab.classList.remove('active');
+                learningTab.classList.remove('active');
+                
+                // 切换页面
+                chatFrame.classList.remove('hidden');
+                artFrame.classList.add('hidden');
+                learningFrame.classList.add('hidden');
+                
+                // 隐藏加载提示
+                hideLoading();
+                
+                console.log('切换到卷王AI');
+            }, 300);
+        }
+        
+        // 切换到AI画师助手
+        function switchToArt(e) {
+            if (e) e.preventDefault();
+            
+            // 显示加载提示
+            showLoading();
+            
+            setTimeout(() => {
+                // 更新按钮状态
+                artTab.classList.add('active');
+                chatTab.classList.remove('active');
+                learningTab.classList.remove('active');
+                
+                // 切换页面
+                artFrame.classList.remove('hidden');
+                chatFrame.classList.add('hidden');
+                learningFrame.classList.add('hidden');
+                
+                // 隐藏加载提示
+                hideLoading();
+                
+                console.log('切换到AI画师助手');
+            }, 300);
+        }
+        
+        // 切换到学习路径生成器
+        function switchToLearning(e) {
+            if (e) e.preventDefault();
+            
+            // 显示加载提示
+            showLoading();
+            
+            setTimeout(() => {
+                // 更新按钮状态
+                learningTab.classList.add('active');
+                chatTab.classList.remove('active');
+                artTab.classList.remove('active');
+                
+                // 切换页面
+                learningFrame.classList.remove('hidden');
+                chatFrame.classList.add('hidden');
+                artFrame.classList.add('hidden');
+                
+                // 隐藏加载提示
+                hideLoading();
+                
+                console.log('切换到学习路径生成器');
+            }, 300);
+        }
+        
+        // 显示加载提示
+        function showLoading() {
+            loadingIndicator.classList.remove('hidden');
+            chatFrame.style.opacity = '0.3';
+            artFrame.style.opacity = '0.3';
+            learningFrame.style.opacity = '0.3';
+        }
+        
+        // 隐藏加载提示
+        function hideLoading() {
+            loadingIndicator.classList.add('hidden');
+            chatFrame.style.opacity = '1';
+            artFrame.style.opacity = '1';
+            learningFrame.style.opacity = '1';
+        }
+        
+        // 绑定事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查元素是否存在
+            if (chatTab && artTab && learningTab) {
+                chatTab.addEventListener('click', switchToChat);
+                artTab.addEventListener('click', switchToArt);
+                learningTab.addEventListener('click', switchToLearning);
+                
+                console.log('导航栏事件绑定成功');
+            } else {
+                console.error('导航栏元素未找到');
+            }
+            
+            // 默认显示卷王AI
+            switchToChat();
+        });
+        
+        // iframe 加载完成事件
+        chatFrame.addEventListener('load', function() {
+            console.log('卷王AI页面加载完成');
+        });
+        
+        artFrame.addEventListener('load', function() {
+            console.log('AI画师助手页面加载完成');
+        });
+        
+        learningFrame.addEventListener('load', function() {
+            console.log('学习路径生成器页面加载完成');
+        });
+        
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey) {
+                if (e.key === '1') {
+                    e.preventDefault();
+                    switchToChat();
+                } else if (e.key === '2') {
+                    e.preventDefault();
+                    switchToArt();
+                } else if (e.key === '3') {
+                    e.preventDefault();
+                    switchToLearning();
+                }
+            }
+        });
+        
+        // 添加一些可爱的交互效果
+        const buttons = document.querySelectorAll('.nav-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = 'translateY(-2px) scale(1.02)';
+                }
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = 'translateY(0px) scale(1)';
+                }
+            });
+        });
+    </script>
+    
+    <!-- 统一导航栏组件 -->
+    <script src="js/unified-navbar.js"></script>
+</body>
+</html>

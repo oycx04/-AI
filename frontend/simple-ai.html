@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 可爱AI画师小助手 🎨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0f0 25%, #ffd6eb 50%, #ffcce6 75%, #ffc2e1 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 可爱的浮动装饰 */
+        .floating-decoration {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .floating-decoration:nth-child(2) {
+            animation-delay: -2s;
+        }
+        
+        .floating-decoration:nth-child(3) {
+            animation-delay: -4s;
+        }
+        
+        /* 卡片样式 */
+        .cute-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(255, 182, 193, 0.3);
+            border: 2px solid rgba(255, 192, 203, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .cute-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(255, 182, 193, 0.4);
+        }
+        
+        /* 按钮样式 */
+        .cute-button {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+        }
+        
+        .cute-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+        }
+        
+        .cute-button:active {
+            transform: translateY(0px);
+        }
+        
+        /* 输入框样式 */
+        .cute-input {
+            border: 2px solid #ffb6c1;
+            border-radius: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .cute-input:focus {
+            outline: none;
+            border-color: #ff69b4;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* 选择框样式 */
+        .cute-select {
+            border: 2px solid #ffb6c1;
+            border-radius: 15px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cute-select:focus {
+            outline: none;
+            border-color: #ff69b4;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ffb6c1;
+            border-top: 4px solid #ff69b4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 脉冲动画 */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 统一导航栏将通过JavaScript动态插入 -->
+
+    <!-- 浮动装饰元素 -->
+    <div class="floating-decoration" style="top: 10%; left: 5%; font-size: 2rem;">🌸</div>
+    <div class="floating-decoration" style="top: 20%; right: 10%; font-size: 1.5rem;">🦄</div>
+    <div class="floating-decoration" style="top: 60%; left: 8%; font-size: 1.8rem;">🌙</div>
+    <div class="floating-decoration" style="top: 70%; right: 5%; font-size: 2.2rem;">⭐</div>
+    <div class="floating-decoration" style="top: 40%; left: 15%; font-size: 1.6rem;">🎀</div>
+    <div class="floating-decoration" style="top: 80%; right: 15%; font-size: 1.4rem;">💖</div>
+    
+    <div class="container mx-auto px-4 pt-24 py-8 relative z-10">
+        <!-- 标题区域 -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center mb-4">
+                <img src="https://muse-ai.oss-cn-hangzhou.aliyuncs.com/img/8bd3e7567f684dd1870b389993eedae9.jpeg" alt="可爱小猫咪" class="w-16 h-16 mr-4 rounded-full object-cover border-2 border-pink-300 shadow-lg" />
+                <div>
+                    <h1 class="text-4xl font-bold text-pink-600 mb-2">可爱AI画师小助手</h1>
+                    <p class="text-pink-400 text-lg">用魔法为你创造美丽的图画 ✨</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主要内容区域 -->
+        <div class="max-w-4xl mx-auto">
+            <!-- 输入区域 -->
+            <div class="cute-card p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <img src="https://muse-ai.oss-cn-hangzhou.aliyuncs.com/img/db9c0239845848b3aebf749bf95ead60.jpeg" alt="可爱小兔子" class="w-8 h-8 mr-3 rounded-full object-cover border border-pink-200" />
+                    <h2 class="text-2xl font-bold text-pink-600">告诉小助手你想画什么吧 🎨</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-pink-600 font-semibold mb-3 text-lg">✨ 描述你的想象：</label>
+                        <textarea 
+                            id="prompt" 
+                            class="cute-input w-full h-32 resize-none" 
+                            placeholder="比如：一只穿着粉色裙子的小猫咪在花园里玩耍，阳光明媚，动漫风格..."
+                        ></textarea>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-pink-600 font-semibold mb-3 text-lg">🖼️ 画布比例：</label>
+                            <select id="aspectRatio" class="cute-select w-full">
+                                <option value="1:1">正方形 (1:1) 🟩</option>
+                                <option value="16:9">宽屏 (16:9) 📺</option>
+                                <option value="9:16">竖屏 (9:16) 📱</option>
+                                <option value="4:3">经典 (4:3) 🖥️</option>
+                                <option value="3:4">竖版 (3:4) 📄</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-end">
+                            <button id="generateBtn" class="cute-button w-full h-12 text-lg font-bold">
+                                <span class="flex items-center justify-center">
+                                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.828-2.828z"/>
+                                    </svg>
+                                    开始创作魔法 ✨
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div id="loadingIndicator" class="cute-card p-8 text-center hidden">
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="loading-spinner"></div>
+                    <div class="flex items-center">
+                        <img src="https://muse-ai.oss-cn-hangzhou.aliyuncs.com/img/aa3d3c28c9d04011b685fdb1d1ceb3ba.jpeg" alt="可爱小熊" class="w-8 h-8 mr-3 rounded-full object-cover border border-pink-200 pulse" />
+                        <p class="text-pink-600 text-xl font-semibold">小助手正在努力画画中... 🎨</p>
+                    </div>
+                    <p class="text-pink-400">请稍等片刻，好作品需要时间哦 💕</p>
+                </div>
+            </div>
+            
+            <!-- 结果展示区域 -->
+            <div id="resultContent" class="cute-card p-8 hidden">
+                <div class="flex items-center mb-6">
+                    <img src="https://muse-ai.oss-cn-hangzhou.aliyuncs.com/img/8cc5a5995ba54a2bb29aa90e689efc28.jpeg" alt="可爱小狐狸" class="w-8 h-8 mr-3 rounded-full object-cover border border-pink-200" />
+                    <h2 class="text-2xl font-bold text-pink-600">作品完成啦！ 🎉</h2>
+                </div>
+                
+                <div id="imageContainer" class="text-center mb-6">
+                    <!-- 生成的图像将显示在这里 -->
+                </div>
+                
+                <div class="text-center">
+                    <button id="downloadBtn" class="cute-button">
+                        <span class="flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
+                            </svg>
+                            下载作品 💕
+                        </span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 错误提示区域 -->
+            <div id="errorContent" class="cute-card p-8 text-center hidden">
+                <div class="flex flex-col items-center space-y-4">
+                    <img src="https://muse-ai.oss-cn-hangzhou.aliyuncs.com/img/c05ba2828d644545be70ba85aa04a7f3.jpeg" alt="伤心小猫咪" class="w-16 h-16 rounded-full object-cover border-2 border-pink-300 shadow-lg" />
+                    <h3 class="text-xl font-bold text-pink-600">哎呀，出了点小问题 😿</h3>
+                    <p id="errorMessage" class="text-pink-500"></p>
+                    <p class="text-pink-400 text-sm">不要担心，再试一次吧！ 💪</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部装饰 -->
+        <div class="text-center mt-12 text-pink-400">
+            <p class="text-sm">Made with 💕 by AI画师小助手</p>
+            <div class="flex justify-center space-x-4 mt-2 text-2xl">
+                <span class="pulse">🌸</span>
+                <span class="pulse" style="animation-delay: 0.5s;">🦋</span>
+                <span class="pulse" style="animation-delay: 1s;">🌈</span>
+                <span class="pulse" style="animation-delay: 1.5s;">✨</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API配置 - 连接本地Flask后端
+        const API_CONFIG = {
+            endpoint: 'http://localhost:5000/generate',
+            healthEndpoint: 'http://localhost:5000/health',
+            modelInfoEndpoint: 'http://localhost:5000/models/info',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        // 图像比例配置
+        const aspectRatios = {
+            "1:1": [1328, 1328],
+            "16:9": [1664, 928],
+            "9:16": [928, 1664],
+            "4:3": [1472, 1140],
+            "3:4": [1140, 1472],
+            "3:2": [1584, 1056],
+            "2:3": [1056, 1584]
+        };
+        
+        // 检查后端服务状态
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch(API_CONFIG.healthEndpoint);
+                const data = await response.json();
+                return data.status === 'healthy' && data.model_loaded;
+            } catch (error) {
+                console.warn('后端服务检查失败:', error);
+                return false;
+            }
+        }
+        
+        // 生成图像函数
+        async function generateImage(prompt, aspectRatio) {
+            try {
+                // 检查后端服务状态
+                const isHealthy = await checkBackendHealth();
+                if (!isHealthy) {
+                    throw new Error('后端服务未就绪，请确保Flask服务器正在运行 (python app.py)');
+                }
+                
+                // 调用真实的Flask后端API，设置较长的超时时间
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2分钟超时
+                
+                const response = await fetch(API_CONFIG.endpoint, {
+                    method: 'POST',
+                    headers: API_CONFIG.headers,
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        aspect_ratio: aspectRatio,
+                        num_inference_steps: 50,
+                        true_cfg_scale: 4.0,
+                        seed: null
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `API请求失败: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    return result;
+                } else {
+                    throw new Error(result.error || '图像生成失败');
+                }
+                
+            } catch (error) {
+                console.error('图像生成失败:', error);
+                throw error;
+            }
+        }
+        
+        // 显示生成的图像
+        function displayImage(imageBase64, filename, prompt, optimizedPrompt = null) {
+            const imageContainer = document.getElementById('imageContainer');
+            const imageUrl = `data:image/png;base64,${imageBase64}`;
+            imageContainer.innerHTML = `
+                <div class="relative inline-block">
+                    <img src="${imageUrl}" alt="${prompt}" class="max-w-full h-auto rounded-xl shadow-lg mx-auto" style="max-height: 600px; border: 3px solid #ffb6c1;">
+                    <div class="absolute -top-2 -right-2 text-2xl animate-bounce">✨</div>
+                </div>
+                <div class="mt-6 p-4 bg-pink-50 rounded-xl border-2 border-pink-200">
+                    <p class="text-pink-600 font-semibold mb-2">🎨 创作描述：</p>
+                    <p class="text-pink-500 text-sm">${prompt}</p>
+                </div>
+            `;
+            
+            // 如果有优化后的提示词，显示提示
+            if (optimizedPrompt && optimizedPrompt !== prompt) {
+                console.log('原始提示词:', prompt);
+                console.log('优化后提示词:', optimizedPrompt);
+            }
+            
+            // 设置下载按钮
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = filename || `cute-ai-art-${Date.now()}.png`;
+                link.click();
+            };
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorContent = document.getElementById('errorContent');
+            const errorMessage = document.getElementById('errorMessage');
+            const loading = document.getElementById('loadingIndicator');
+            const resultContainer = document.getElementById('resultContent');
+            
+            loading.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            errorContent.classList.remove('hidden');
+            errorMessage.textContent = message;
+        }
+        
+        // 主要的生成按钮事件处理
+        document.getElementById('generateBtn').addEventListener('click', async function() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            const loading = document.getElementById('loadingIndicator');
+            const resultContainer = document.getElementById('resultContent');
+            const errorContent = document.getElementById('errorContent');
+            
+            if (!prompt) {
+                alert('请告诉小助手你想画什么吧！ 🎨');
+                return;
+            }
+            
+            // 显示加载状态
+            loading.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            errorContent.classList.add('hidden');
+            
+            try {
+                // 调用真实的图像生成API
+                const apiResult = await generateImage(prompt, aspectRatio);
+                displayImage(apiResult.image_base64, apiResult.filename, prompt, apiResult.optimized_prompt);
+                
+                loading.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+                
+            } catch (error) {
+                showError('生成失败: ' + error.message);
+            }
+        });
+        
+        // 添加一些可爱的提示词建议
+        const promptSuggestions = [
+            "一只穿着粉色裙子的小猫咪在花园里玩耍 🌸",
+            "可爱的小兔子在彩虹下跳舞，动漫风格 🌈",
+            "戴着蝴蝶结的小狐狸在森林里探险 🎀",
+            "穿着公主裙的小熊在城堡前微笑 👑",
+            "拿着魔法棒的小独角兽在星空下飞翔 ✨"
+        ];
+        
+        // 随机显示提示词建议
+        const promptInput = document.getElementById('prompt');
+        let suggestionIndex = 0;
+        
+        function showNextSuggestion() {
+            if (promptInput.value.trim() === '') {
+                promptInput.placeholder = promptSuggestions[suggestionIndex];
+                suggestionIndex = (suggestionIndex + 1) % promptSuggestions.length;
+            }
+        }
+        
+        // 每5秒更换一次提示词建议
+        setInterval(showNextSuggestion, 5000);
+        
+        // 检查用户登录状态
+
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            showNextSuggestion();
+            
+            // 添加一些可爱的交互效果
+            const buttons = document.querySelectorAll('.cute-button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0px) scale(1)';
+                });
+            });
+        });
+    </script>
+    
+    <!-- 统一导航栏组件 -->
+    <script src="js/unified-navbar.js"></script>
+</body>
+</html>

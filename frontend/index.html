@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卷王AI</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <!-- 广告联盟通用配置 -->
+    <meta name="keywords" content="考研,复读,学习,辅导,在线教育,培训">
+    <meta name="description" content="专业的学习助手平台，提供考研辅导、复读指导等优质教育服务">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        // 配置将在页面加载后进行
+    </script>
+    
+    <!-- 统计配置文件 -->
+    <script src="analytics-config.js"></script>
+    
+    <!-- 百度统计 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            // 从配置文件获取百度统计ID
+            var baiduId = window.ANALYTICS_CONFIG && window.ANALYTICS_CONFIG.baidu.enabled ? 
+                         window.ANALYTICS_CONFIG.baidu.siteId : 'YOUR_BAIDU_ANALYTICS_ID';
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?" + baiduId;
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+    <!-- 广告屏蔽检测 -->
+    <script>
+        // 广告屏蔽检测
+        window.adBlockDetected = false;
+        
+        function detectAdBlock() {
+            var testAd = document.createElement('div');
+            testAd.innerHTML = '&nbsp;';
+            testAd.className = 'adsbox';
+            testAd.style.position = 'absolute';
+            testAd.style.left = '-10000px';
+            document.body.appendChild(testAd);
+            
+            setTimeout(function() {
+                if (testAd.offsetHeight === 0) {
+                    window.adBlockDetected = true;
+                    showAdBlockNotice();
+                }
+                document.body.removeChild(testAd);
+            }, 100);
+        }
+        
+        function showAdBlockNotice() {
+            // 检查是否已经显示过提示
+            if (localStorage.getItem('adblock_notice_shown') === 'true') {
+                return;
+            }
+            
+            var notice = document.createElement('div');
+            notice.id = 'adblock-notice';
+            notice.innerHTML = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5px);">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 hover:scale-100">
+                        <div class="p-6 text-center">
+                            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                                <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">检测到广告屏蔽插件 🛡️</h3>
+                            <p class="text-gray-600 mb-6 leading-relaxed">亲爱的用户，我们发现您使用了广告屏蔽插件。<br>广告收入是我们维持网站运营的重要支持，<br>请考虑将本站加入白名单，感谢您的理解！</p>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button onclick="closeAdBlockNotice(false)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                    我知道了
+                                </button>
+                                <button onclick="closeAdBlockNotice(true)" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                    不再提醒
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notice);
+            
+            // 添加动画效果
+            setTimeout(function() {
+                var modal = notice.querySelector('div > div');
+                modal.classList.remove('scale-95');
+                modal.classList.add('scale-100');
+            }, 10);
+        }
+        
+        function closeAdBlockNotice(dontShowAgain) {
+            var notice = document.getElementById('adblock-notice');
+            if (notice) {
+                var modal = notice.querySelector('div > div');
+                modal.classList.add('scale-95');
+                setTimeout(function() {
+                    notice.remove();
+                }, 200);
+            }
+            
+            if (dontShowAgain) {
+                localStorage.setItem('adblock_notice_shown', 'true');
+            }
+        }
+        
+        // 广告加载优化
+        function initAds() {
+            // 添加加载动画
+            const adElements = document.querySelectorAll('[id$="-ad"]');
+            adElements.forEach(ad => {
+                ad.classList.add('ad-loading');
+                
+                // 模拟广告加载完成
+                setTimeout(() => {
+                    ad.classList.remove('ad-loading');
+                }, 1500);
+            });
+            
+            // 广告点击统计
+            adElements.forEach(ad => {
+                ad.addEventListener('click', function() {
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'ad_click', {
+                            'ad_position': this.id,
+                            'event_category': 'advertisement'
+                        });
+                    }
+                });
+            });
+        }
+        
+        // 网站统计初始化
+        function initAnalytics() {
+            const config = window.ANALYTICS_CONFIG;
+            if (!config) return;
+            
+            // Google Analytics 4
+            if (config.google.enabled && typeof gtag !== 'undefined') {
+                gtag('config', config.google.measurementId, {
+                    page_title: document.title,
+                    page_location: window.location.href,
+                    anonymize_ip: config.privacy.anonymizeIP
+                });
+                
+                // 自定义事件追踪
+                gtag('event', 'page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href,
+                    user_agent: navigator.userAgent
+                });
+            }
+            
+            // 百度统计
+            if (config.baidu.enabled && typeof _hmt !== 'undefined') {
+                _hmt.push(['_trackPageview']);
+            }
+            
+            // 检查Do Not Track设置
+            if (config.privacy.respectDNT && navigator.doNotTrack === '1') {
+                console.log('用户启用了Do Not Track，跳过统计追踪');
+                return;
+            }
+        }
+        
+        // 用户行为追踪
+        function trackUserBehavior() {
+            const config = window.ANALYTICS_CONFIG;
+            if (!config || !config.tracking) return;
+            
+            // 检查Do Not Track
+            if (config.privacy.respectDNT && navigator.doNotTrack === '1') {
+                return;
+            }
+            
+            // 点击事件追踪
+            if (config.tracking.trackClicks) {
+                document.addEventListener('click', function(e) {
+                    // 计算器使用追踪
+                    if (e.target.matches('.calculator-btn, .calc-btn')) {
+                        if (config.google.enabled && typeof gtag !== 'undefined') {
+                            gtag('event', 'calculator_use', {
+                                event_category: config.events.calculator_use.category,
+                                event_label: e.target.textContent || e.target.value,
+                                value: 1
+                            });
+                        }
+                        
+                        if (config.baidu.enabled && typeof _hmt !== 'undefined') {
+                            _hmt.push(['_trackEvent', config.events.calculator_use.category, 'calculator_use', e.target.textContent || e.target.value]);
+                        }
+                    }
+                    
+                    // 功能按钮点击追踪
+                    if (e.target.matches('.feature-btn, .tool-btn')) {
+                        if (config.google.enabled && typeof gtag !== 'undefined') {
+                            gtag('event', 'feature_click', {
+                                event_category: config.events.feature_click.category,
+                                event_label: e.target.textContent || e.target.getAttribute('data-feature'),
+                                value: 1
+                            });
+                        }
+                        
+                        if (config.baidu.enabled && typeof _hmt !== 'undefined') {
+                            _hmt.push(['_trackEvent', config.events.feature_click.category, 'feature_click', e.target.textContent || e.target.getAttribute('data-feature')]);
+                        }
+                    }
+                    
+                    // 外部链接追踪
+                    if (config.tracking.trackExternalLinks && e.target.tagName === 'A') {
+                        const href = e.target.href;
+                        if (href && !href.includes(window.location.hostname)) {
+                            if (config.google.enabled && typeof gtag !== 'undefined') {
+                                gtag('event', 'click', {
+                                    event_category: 'outbound',
+                                    event_label: href,
+                                    transport_type: 'beacon'
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 页面停留时间追踪
+            let startTime = Date.now();
+            window.addEventListener('beforeunload', function() {
+                let timeSpent = Math.round((Date.now() - startTime) / 1000);
+                if (typeof gtag !== 'undefined' && timeSpent > 5) {
+                    gtag('event', 'timing_complete', {
+                        name: 'page_view_time',
+                        value: timeSpent
+                    });
+                }
+            });
+            
+            // 滚动深度追踪
+            let maxScroll = 0;
+            window.addEventListener('scroll', function() {
+                let scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+                if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
+                    maxScroll = scrollPercent;
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'scroll', {
+                            event_category: 'engagement',
+                            event_label: scrollPercent + '%',
+                            value: scrollPercent
+                        });
+                    }
+                }
+            });
+        }
+        
+        // 页面加载完成后检测
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(detectAdBlock, 2000);
+            initAds();
+            initAnalytics();
+            trackUserBehavior();
+        });
+        
+        // 广告位懒加载优化
+        if ('IntersectionObserver' in window) {
+            const adObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // 广告进入视口时的处理
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.ad-container, [id$="-ad"]').forEach(ad => {
+                    ad.style.opacity = '0';
+                    ad.style.transform = 'translateY(20px)';
+                    ad.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    adObserver.observe(ad);
+                });
+            });
+        }
+    </script>
+    
+    <!-- MathJax支持 -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f5f9fc;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-6 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm29 22c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM32 63c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm57-13c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23e1e8ed' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .chat-container {
+            background-color: white;
+            background-image: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.9) 100%), url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-6 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm29 22c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM32 63c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm57-13c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23e1e8ed' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-message {
+            background-color: #e3f2fd;
+            border-radius: 18px 18px 18px 4px;
+            color: #1976d2;
+        }
+        
+        .user-message {
+            background-color: #4caf50;
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+        
+        /* 广告位响应式优化 */
+        @media (max-width: 768px) {
+            #left-banner-ad {
+                display: none; /* 移动端隐藏左侧广告 */
+            }
+            
+            #sidebar-ad {
+                display: none; /* 移动端隐藏右侧悬浮广告 */
+            }
+            
+            .ad-container {
+                width: 100% !important;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+            
+            #bottom-banner-ad {
+                padding: 8px !important;
+            }
+            
+            /* 移动端调整主要内容区域边距 */
+            .pt-32.p-4.pl-48 {
+                padding-left: 1rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .ad-container {
+                max-width: 250px;
+            }
+        }
+        
+        /* 广告位悬停效果 */
+        .ad-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        /* 广告加载动画 */
+        .ad-loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .input-area {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .send-btn {
+            background-color: #2196f3;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .send-btn:hover {
+            background-color: #1976d2;
+            transform: translateY(-2px);
+        }
+        
+        .campus-icon {
+            color: #4caf50;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+            color: white;
+        }
+        
+        .decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        
+        .decoration.book {
+            color: #2196f3;
+        }
+        
+        .decoration.pencil {
+            color: #ff9800;
+        }
+        
+        .decoration.building {
+            color: #4caf50;
+        }
+        
+        .progress-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .progress-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 新增样式 */
+        .overview-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .difficulty-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .difficulty-badge.beginner {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .difficulty-badge.intermediate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .difficulty-badge.advanced {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .success-metrics {
+            margin-top: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .learning-objectives {
+            margin: 16px 0;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .objectives-list {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .objectives-list li {
+            margin: 4px 0;
+            color: #475569;
+        }
+        
+        .resource-meta {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .time-badge {
+            padding: 2px 8px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        
+        .milestone-section {
+            margin: 16px 0;
+            padding: 16px;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-radius: 8px;
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .tips-section {
+            margin: 16px 0;
+            padding: 16px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .next-steps-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 12px;
+            border: 2px solid #22c55e;
+        }
+        
+        .resource-item {
+            transition: all 0.3s ease;
+        }
+        
+        .resource-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 思考过程样式 */
+        .thinking-process {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thinking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .thinking-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .thinking-indicator {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .thinking-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: thinking-pulse 1.5s infinite;
+        }
+        
+        .thinking-indicator .dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .thinking-indicator .dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes thinking-pulse {
+            0%, 60%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            30% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        .thinking-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        
+        .thinking-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 12px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+            animation: step-appear 0.5s ease-out;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thinking-step.complete {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .step-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .step-text {
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        @keyframes step-appear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 滚动条样式 */
+        .thinking-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .thinking-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        .thinking-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .thinking-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* 通知消息样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            z-index: 1000;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .notification.error {
+            background: rgba(254, 226, 226, 0.95);
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+        }
+        
+        .notification.success {
+            background: rgba(220, 252, 231, 0.95);
+            border: 1px solid #86efac;
+            color: #16a34a;
+        }
+        
+        .notification .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin-left: auto;
+        }
+        
+        .notification .close-btn:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 按钮禁用状态 */
+        .generate-btn:disabled {
+            background: #9ca3af !important;
+            cursor: not-allowed;
+            transform: none !important;
+            opacity: 0.7;
+        }
+        
+        .generate-btn:disabled:hover {
+            background: #9ca3af !important;
+            transform: none !important;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-600">
+                        <i class="fas fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white">AI助手平台</h1>
+                        <p class="text-sm text-white opacity-80">智能学习与创作助手</p>
+                    </div>
+                </div>
+                
+                <!-- 页面切换导航 -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.location.href='index.html'" class="nav-btn active px-6 py-3 rounded-xl font-semibold transition-all duration-300 bg-white bg-opacity-20 text-white hover:bg-opacity-30">
+                        <i class="fas fa-comments mr-2"></i>卷王AI
+                    </button>
+                    <button onclick="window.location.href='simple-ai.html'" class="nav-btn px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white hover:bg-white hover:bg-opacity-20">
+                        <i class="fas fa-palette mr-2"></i>AI画师助手
+                    </button>
+                    <button onclick="window.location.href='learning-path-generator.html'" class="nav-btn px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white hover:bg-white hover:bg-opacity-20">
+                        <i class="fas fa-route mr-2"></i>学习路径生成器
+                    </button>
+                    <button onclick="window.location.href='leaderboard.html'" class="nav-btn px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white hover:bg-white hover:bg-opacity-20">
+                        <i class="fas fa-trophy mr-2"></i>卷王排名
+                    </button>
+                    
+                    <!-- 分隔线 -->
+                    <div class="w-px h-8 bg-white bg-opacity-30 mx-2"></div>
+                    
+                    <!-- 用户功能 -->
+                    <button onclick="window.location.href='auth.html'" class="px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-blue-500 hover:bg-blue-600 text-white">
+                        <i class="fas fa-sign-in-alt mr-2"></i>登录
+                    </button>
+                    <button onclick="window.location.href='auth.html'" class="px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-green-500 hover:bg-green-600 text-white">
+                        <i class="fas fa-user-plus mr-2"></i>注册
+                    </button>
+                </div>
+                
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- 校园装饰元素 -->
+    <i class="fas fa-book decoration book text-8xl top-10 left-10"></i>
+    <i class="fas fa-pencil-alt decoration pencil text-6xl bottom-20 right-10"></i>
+    <i class="fas fa-school decoration building text-9xl bottom-10 left-1/4"></i>
+    
+    <!-- 左侧广告位 -->
+    <div class="fixed top-20 left-4 z-40 bg-white shadow-lg rounded-lg border border-gray-200" style="width: 160px;">
+        <div class="p-2">
+            <div id="left-banner-ad" class="bg-gradient-to-b from-yellow-50 to-orange-50 rounded-lg p-2 border border-yellow-200 ad-hover">
+                <!-- 百度联盟广告代码位置 -->
+                <script type="text/javascript">
+                    // 百度联盟广告代码
+                    /*
+                    (function() {
+                        var cpro_id = "u6849608"; // 替换为实际的百度联盟ID
+                        var cpro_w = 160;
+                        var cpro_h = 600;
+                        var s = document.createElement("script");
+                        s.type = "text/javascript";
+                        s.charset = "UTF-8";
+                        s.src = "//cpro.baidustatic.com/cpro/ui/c.js";
+                        document.getElementsByTagName("head")[0].appendChild(s);
+                    })();
+                    */
+                </script>
+                <!-- 临时占位内容 -->
+                <div class="text-center text-gray-500 py-4">
+                    <i class="fas fa-graduation-cap text-2xl mb-2 block"></i>
+                    <p class="text-xs font-medium mb-2">🎓 考研培训</p>
+                    <p class="text-xs mb-2">📚 在线辅导</p>
+                    <p class="text-xs mb-2">🚀 提升学历</p>
+                    <p class="text-xs opacity-70">160x600 广告位</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="pt-32 p-4 pl-48 flex items-center justify-center min-h-screen">
+        <div class="content-container w-full max-w-4xl">
+        <div class="w-full max-w-2xl mx-auto" id="chatContent">
+        <!-- 聊天头部 -->
+        <div class="header rounded-t-2xl p-4 flex items-center justify-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-green-500">
+                    <i class="fas fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">开始学习对话</h2>
+                    <p class="text-sm opacity-80">有什么问题尽管问我</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 聊天区域 -->
+        <div id="chatMessages" class="chat-container p-4 h-96 overflow-y-auto flex flex-col">
+            <!-- AI初始消息 -->
+            <div class="flex mb-4">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
+                    <img src="assets/cute_dog_anime.png" alt="AI助手" class="w-6 h-6 rounded-full">
+                </div>
+                <div class="max-w-xs md:max-w-md">
+                    <div class="ai-message p-3">
+                        <p>嗨，同学！有什么学习问题想聊一聊吗？😊</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 输入区域 -->
+        <div class="input-area p-3 flex items-center space-x-2">
+            <input type="text" id="chatInput" placeholder="输入你的问题..." class="flex-1 p-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300" onkeypress="handleChatKeyPress(event)">
+            <button class="send-btn p-2 rounded-lg w-10 h-10 flex items-center justify-center" onclick="sendChatMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        
+        <!-- 学习工具区域 -->
+        <div class="mt-6 flex gap-6">
+            <!-- 左侧功能区 -->
+            <div class="flex-1 space-y-4">
+                <!-- 学习计时器 -->
+                <div class="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                            <i class="fas fa-clock text-blue-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">学习计时器</h3>
+                    </div>
+                    <div class="text-center">
+                        <div id="timer-display" class="text-3xl font-mono text-gray-800 mb-4 bg-gray-50 rounded-lg py-2">00:00:00</div>
+                        <div class="flex gap-2 justify-center">
+                            <button id="start-timer" class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-sm hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-play mr-1"></i>开始
+                            </button>
+                            <button id="pause-timer" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-pause mr-1"></i>暂停
+                            </button>
+                            <button id="reset-timer" class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg text-sm hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-stop mr-1"></i>重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日学习统计 -->
+                <div class="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-green-100 p-2 rounded-lg mr-3">
+                            <i class="fas fa-chart-line text-green-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">今日学习</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+                            <span class="text-sm text-gray-700 font-medium">学习时长</span>
+                            <span id="total-study-time" class="font-bold text-blue-600">0分钟</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+                            <span class="text-sm text-gray-700 font-medium">提问次数</span>
+                            <span id="question-count" class="font-bold text-green-600">0次</span>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-700 font-medium">学习目标</span>
+                            </div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <select id="hours" class="text-sm font-semibold text-purple-600 bg-white border border-purple-300 rounded-lg px-3 py-1 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                                <span class="text-sm text-gray-600">小时</span>
+                                <select id="minutes" class="text-sm font-semibold text-purple-600 bg-white border border-purple-300 rounded-lg px-3 py-1 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                                    <option value="0">0</option>
+                                    <option value="15">15</option>
+                                    <option value="30">30</option>
+                                    <option value="45">45</option>
+                                </select>
+                                <span class="text-sm text-gray-600">分钟</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-gray-600 mb-2">
+                                <span id="timer-status" class="font-medium">未开始</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                <div id="progress-bar" class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间广告位1 - 360联盟 -->
+            <div class="w-48 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-2 shadow-lg border border-gray-100 flex flex-col items-center justify-center ad-container ad-hover">
+                <!-- 360联盟广告代码位置 -->
+                <script type="text/javascript">
+                    // 360联盟广告代码
+                    /*
+                    (function() {
+                        var _360_ad_id = "your_360_ad_id"; // 替换为实际的360联盟ID
+                        var _360_ad_w = 200;
+                        var _360_ad_h = 400;
+                        var s = document.createElement("script");
+                        s.type = "text/javascript";
+                        s.src = "//s.lianmeng.360.cn/so/ad.js";
+                        document.getElementsByTagName("head")[0].appendChild(s);
+                    })();
+                    */
+                </script>
+                <!-- 临时占位内容 -->
+                <div class="text-gray-400 text-center p-2">
+                    <i class="fas fa-book text-2xl mb-2 text-blue-500"></i>
+                    <p class="text-xs font-medium mb-1">📖 学习资料</p>
+                    <p class="text-xs mb-1">考研必备</p>
+                    <p class="text-xs text-blue-600">点击获取</p>
+                    <p class="text-xs mt-2">200x400 360联盟</p>
+                </div>
+            </div>
+
+            <!-- 右侧功能区 -->
+            <div class="flex-1 space-y-4">
+                <!-- 待办事情 -->
+                <div class="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-pink-100 p-2 rounded-lg mr-3">
+                            <i class="fas fa-tasks text-pink-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800">待办事情</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- 添加新任务 -->
+                        <div class="flex gap-2">
+                            <input type="text" id="new-todo-input" placeholder="输入今天要完成的任务..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200">
+                            <button id="add-todo-btn" class="px-3 py-2 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg text-sm hover:from-pink-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 任务列表 -->
+                        <div id="todo-list" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- 任务将动态添加到这里 -->
+                        </div>
+                        
+                        <!-- 统计信息 -->
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                            <span class="text-xs text-gray-600">今日进度</span>
+                            <span id="todo-progress" class="text-xs font-semibold text-pink-600">0/2 完成</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习提醒 -->
+                <div class="bg-white rounded-xl p-4 shadow-lg border border-gray-100">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-bell text-orange-500 text-xl mr-2"></i>
+                        <h3 class="font-semibold text-gray-800">学习提醒</h3>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">休息提醒</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="break-reminder" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">每日目标</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="daily-goal" class="sr-only peer" checked>
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        <button class="w-full mt-2 px-3 py-2 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600 transition-colors">
+                            <i class="fas fa-cog mr-1"></i>设置提醒
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间广告位2 - 搜狗联盟 -->
+            <div class="w-48 bg-gradient-to-br from-green-50 to-yellow-50 rounded-xl p-2 shadow-lg border border-gray-100 flex flex-col items-center justify-center ad-container ad-hover">
+                <!-- 搜狗联盟广告代码位置 -->
+                <script type="text/javascript">
+                    // 搜狗联盟广告代码
+                    /*
+                    (function() {
+                        var sogou_ad_id = "your_sogou_ad_id"; // 替换为实际的搜狗联盟ID
+                        var sogou_ad_w = 200;
+                        var sogou_ad_h = 400;
+                        var s = document.createElement("script");
+                        s.type = "text/javascript";
+                        s.src = "//theta.sogoucdn.com/wap/js/aw.js";
+                        document.getElementsByTagName("head")[0].appendChild(s);
+                    })();
+                    */
+                </script>
+                <!-- 临时占位内容 -->
+                <div class="text-gray-400 text-center p-2">
+                    <i class="fas fa-user-graduate text-2xl mb-2 text-green-500"></i>
+                    <p class="text-xs font-medium mb-1">🎯 复读辅导</p>
+                    <p class="text-xs mb-1">名师指导</p>
+                    <p class="text-xs text-green-600">立即咨询</p>
+                    <p class="text-xs mt-2">200x400 搜狗联盟</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速功能区域 -->
+        <div class="mt-6 bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-magic text-purple-500 mr-2"></i>
+                快速功能
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 text-center group" data-function="calculator">
+                    <i class="fas fa-calculator text-2xl text-blue-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-sm font-medium text-gray-700">计算器</div>
+                </button>
+                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 text-center group" data-function="translator">
+                    <i class="fas fa-language text-2xl text-green-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-sm font-medium text-gray-700">翻译助手</div>
+                </button>
+                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-200 text-center group" data-function="creative">
+                    <i class="fas fa-lightbulb text-2xl text-red-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-sm font-medium text-gray-700">创意灵感</div>
+                </button>
+                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 text-center group" onclick="window.location.href='learning-path-generator.html'">
+                    <i class="fas fa-route text-2xl text-purple-500 mb-2 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-sm font-medium text-gray-700">学习路径生成器</div>
+                </button>
+            </div>
+            
+            <!-- 功能状态提示 -->
+            <div id="function-status" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 hidden">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="status-text"></span>
+            </div>
+            
+            <!-- 计算器组件 -->
+            <div id="calculator" class="mt-4 bg-gray-50 rounded-lg p-4 hidden">
+                <div class="bg-white rounded-lg p-3 mb-3">
+                    <input type="text" id="calc-display" class="w-full text-right text-lg font-mono bg-transparent border-none focus:outline-none" value="0" readonly>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                    <button class="calc-btn bg-gray-200 hover:bg-gray-300 p-3 rounded text-center font-semibold" onclick="clearCalculator()">C</button>
+                    <button class="calc-btn bg-gray-200 hover:bg-gray-300 p-3 rounded text-center font-semibold" onclick="deleteLast()">⌫</button>
+                    <button class="calc-btn bg-orange-200 hover:bg-orange-300 p-3 rounded text-center font-semibold" onclick="appendToDisplay('/')">/</button>
+                    <button class="calc-btn bg-orange-200 hover:bg-orange-300 p-3 rounded text-center font-semibold" onclick="appendToDisplay('*')">×</button>
+                    
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('7')">7</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('8')">8</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('9')">9</button>
+                    <button class="calc-btn bg-orange-200 hover:bg-orange-300 p-3 rounded text-center font-semibold" onclick="appendToDisplay('-')">-</button>
+                    
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('4')">4</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('5')">5</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('6')">6</button>
+                    <button class="calc-btn bg-orange-200 hover:bg-orange-300 p-3 rounded text-center font-semibold" onclick="appendToDisplay('+')">+</button>
+                    
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('1')">1</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('2')">2</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('3')">3</button>
+                    <button class="calc-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded text-center font-semibold row-span-2" onclick="calculate()" style="grid-row: span 2;">=</button>
+                    
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
+                    <button class="calc-btn bg-white hover:bg-gray-100 p-3 rounded text-center font-semibold" onclick="appendToDisplay('.')">.</button>
+                </div>
+            </div>
+        </div>
+
+
+        </div>
+        </div>
+    </div>
+    
+    <!-- 底部横幅广告位 -->
+    <div class="bg-white border-t border-gray-200 py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center">
+                <div id="bottom-banner-ad" class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-3 border border-green-200 max-w-4xl w-full text-center ad-hover">
+                    <!-- 腾讯广点通广告代码位置 -->
+                    <script type="text/javascript">
+                        // 腾讯广点通广告代码
+                        /*
+                        (function() {
+                            var gdt_ad_id = "your_gdt_ad_id"; // 替换为实际的广点通ID
+                            var gdt_ad_w = 970;
+                            var gdt_ad_h = 250;
+                            var s = document.createElement("script");
+                            s.type = "text/javascript";
+                            s.src = "//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js";
+                            document.getElementsByTagName("head")[0].appendChild(s);
+                        })();
+                        */
+                    </script>
+                    <!-- 临时占位内容 -->
+                    <div class="text-gray-600 py-3">
+                        <i class="fas fa-book-open text-2xl mb-3 text-green-600"></i>
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">🎓 专业考研辅导 | 名师在线授课 | 高效提分方案</h3>
+                        <p class="text-sm mb-3">💡 个性化学习计划 | 📚 海量题库资源 | 🏆 历年高分学员推荐</p>
+                        <button class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-6 py-2 rounded-full hover:from-blue-600 hover:to-green-600 transition-all duration-300 shadow-lg">
+                            立即了解课程 →
+                        </button>
+                        <p class="text-xs mt-3 text-gray-400">970x250 腾讯广点通</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧悬浮广告位 -->
+    <div class="fixed right-4 top-1/2 transform -translate-y-1/2 z-30">
+        <div id="sidebar-ad" class="bg-white rounded-lg shadow-xl border border-gray-200 p-2 w-36 hover:shadow-2xl transition-shadow duration-300 ad-hover">
+            <!-- 今日头条穿山甲广告代码位置 -->
+            <script type="text/javascript">
+                // 今日头条穿山甲广告代码
+                /*
+                (function() {
+                    var tt_ad_id = "your_tt_ad_id"; // 替换为实际的穿山甲ID
+                    var tt_ad_w = 140;
+                    var tt_ad_h = 280;
+                    var s = document.createElement("script");
+                    s.type = "text/javascript";
+                    s.src = "//sf1-cdn-tos.pstatp.com/goofy/ttzz/push.js";
+                    document.getElementsByTagName("head")[0].appendChild(s);
+                })();
+                */
+            </script>
+            <!-- 临时占位内容 -->
+            <div class="text-center text-gray-600 p-2">
+                <i class="fas fa-lightbulb text-2xl mb-2 text-yellow-500"></i>
+                <p class="text-xs font-bold mb-1 text-gray-800">📚 学历提升</p>
+                <p class="text-xs mb-1">在线课程</p>
+                <p class="text-xs text-blue-600 font-medium">点击咨询</p>
+                <p class="text-xs mt-2 text-gray-400">140x280 穿山甲</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center w-full text-gray-500 text-sm py-4">
+        <p>由一个爱学习的学长开发</p>
+    </footer>
+    
+    <script>
+        // AI个性化学习路径生成器相关函数已删除
+        
+        // 显示错误消息
+         function showErrorMessage(message) {
+             const errorDiv = document.createElement('div');
+             errorDiv.className = 'notification error';
+             errorDiv.innerHTML = `
+                 <i class="fas fa-exclamation-triangle"></i>
+                 <span>${message}</span>
+                 <button class="close-btn" onclick="this.parentElement.remove()">
+                     <i class="fas fa-times"></i>
+                 </button>
+             `;
+             document.body.appendChild(errorDiv);
+             
+             // 自动移除
+             setTimeout(() => {
+                 if (errorDiv.parentNode) {
+                     errorDiv.remove();
+                 }
+             }, 5000);
+         }
+         
+         // 显示成功消息
+         function showSuccessMessage(message) {
+             const successDiv = document.createElement('div');
+             successDiv.className = 'notification success';
+             successDiv.innerHTML = `
+                 <i class="fas fa-check-circle"></i>
+                 <span>${message}</span>
+                 <button class="close-btn" onclick="this.parentElement.remove()">
+                     <i class="fas fa-times"></i>
+                 </button>
+             `;
+             document.body.appendChild(successDiv);
+             
+             // 自动移除
+             setTimeout(() => {
+                 if (successDiv.parentNode) {
+                     successDiv.remove();
+                 }
+             }, 3000);
+         }
+        
+        // generateLearningPath函数已删除
+        
+        // generatePathContentFromAPI函数已删除
+        
+        // 所有学习路径相关函数已删除
+        
+        // 学习路径相关函数已全部删除
+        
+        // ========== 学习工具功能 ==========
+        
+        // 计时器相关变量
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let totalStudySeconds = 0;
+        let questionCount = 0;
+        
+        // 初始化学习工具
+        function initLearningTools() {
+            // 加载保存的数据
+            loadStudyData();
+        }
+        
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerSeconds / 3600);
+            const minutes = Math.floor((timerSeconds % 3600) / 60);
+            const seconds = timerSeconds % 60;
+            
+            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = display;
+        }
+        
+        // 更新学习统计
+        function updateStudyStats() {
+            const minutes = Math.floor(totalStudySeconds / 60);
+            document.getElementById('total-study-time').textContent = `${minutes}分钟`;
+            document.getElementById('question-count').textContent = `${questionCount}次`;
+            
+            // 进度条现在由学习计时器功能控制，不在这里更新
+        }
+        
+
+        
+        // 保存学习数据
+        function saveStudyData() {
+            const data = {
+                totalStudySeconds: totalStudySeconds,
+                questionCount: questionCount,
+                date: new Date().toDateString()
+            };
+            localStorage.setItem('studyData', JSON.stringify(data));
+        }
+        
+        // 加载学习数据
+        function loadStudyData() {
+            const saved = localStorage.getItem('studyData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                const today = new Date().toDateString();
+                
+                // 如果是今天的数据，则加载
+                if (data.date === today) {
+                    totalStudySeconds = data.totalStudySeconds || 0;
+                    questionCount = data.questionCount || 0;
+                } else {
+                    // 新的一天，重置数据
+                    totalStudySeconds = 0;
+                    questionCount = 0;
+                }
+            }
+        }
+        
+        // 更新显示
+        function updateDisplay() {
+            updateStudyStats();
+            updateTimerDisplay();
+        }
+        
+        // 增加提问次数
+        function incrementQuestionCount() {
+            questionCount++;
+            updateStudyStats();
+            saveStudyData();
+        }
+        
+        // ========== 聊天功能 ==========
+        
+        // 处理键盘按键事件
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+        
+        // 发送聊天消息
+        async function sendChatMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (!message) {
+                showErrorMessage('请输入您的问题');
+                return;
+            }
+            
+            // 清空输入框
+            chatInput.value = '';
+            
+            // 添加用户消息到聊天区域
+            addMessageToChat(message, 'user');
+            
+            // 增加提问次数统计
+            incrementQuestionCount();
+            
+            // 显示AI正在思考的状态
+            const thinkingMessageId = addThinkingMessage();
+            
+            // 根据激活的功能调整消息内容
+            let processedMessage = message;
+            if (activeFunction === 'translator') {
+                processedMessage = `请帮我翻译以下文本，并详细分析其中的生词、难词、语法结构和表达技巧：\n\n${message}`;
+            } else if (activeFunction === 'creative') {
+                processedMessage = `请根据以下文本进行创意创作，可以是续写、改写、或者基于此主题的创意发挥：\n\n${message}`;
+            }
+            
+            try {
+                // 调用DeepSeek AI API
+                const response = await fetch('http://localhost:5000/chat_with_deepseek', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: processedMessage
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`服务器错误 (${response.status})`);
+                }
+                
+                const data = await response.json();
+                
+                // 移除思考状态消息
+                removeThinkingMessage(thinkingMessageId);
+                
+                if (data.success) {
+                    // 添加AI回复到聊天区域
+                    addMessageToChat(data.reply, 'ai');
+                } else {
+                    throw new Error(data.error || '获取AI回复失败');
+                }
+                
+            } catch (error) {
+                // 移除思考状态消息
+                removeThinkingMessage(thinkingMessageId);
+                
+                console.error('聊天错误:', error);
+                
+                let errorMessage = '抱歉，我现在无法回答您的问题。';
+                if (error.name === 'AbortError') {
+                    errorMessage = '请求超时，请稍后再试。';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = '网络连接失败，请检查网络连接。';
+                }
+                
+                addMessageToChat(errorMessage, 'ai');
+                showErrorMessage('发送消息失败: ' + error.message);
+            }
+        }
+        
+        // 添加消息到聊天区域
+        function addMessageToChat(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex mb-4 ${sender === 'user' ? 'justify-end' : ''}`;
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs md:max-w-md">
+                        <div class="user-message bg-blue-500 text-white p-3 rounded-lg">
+                            <p>${escapeHtml(message)}</p>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white ml-2">
+                        <i class="fas fa-user"></i>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
+                        <img src="qwen_image_138532ba_20250908_214559.png" alt="AI助手" class="w-6 h-6 rounded-full">
+                    </div>
+                    <div class="max-w-xs md:max-w-md">
+                        <div class="ai-message p-3">
+                            <p>${formatAIMessage(message)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // 重新渲染数学公式
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([messageDiv]).catch((err) => console.log('MathJax typeset failed: ' + err.message));
+            }
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 添加AI思考状态消息
+        function addThinkingMessage() {
+            const chatMessages = document.getElementById('chatMessages');
+            const thinkingDiv = document.createElement('div');
+            const thinkingId = 'thinking-' + Date.now();
+            thinkingDiv.id = thinkingId;
+            thinkingDiv.className = 'flex mb-4';
+            thinkingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
+                    <img src="assets/cute_dog_anime.png" alt="AI助手" class="w-6 h-6 rounded-full">
+                </div>
+                <div class="max-w-xs md:max-w-md">
+                    <div class="ai-message p-3">
+                        <p class="flex items-center">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            正在思考中...
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(thinkingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return thinkingId;
+        }
+        
+        // 移除AI思考状态消息
+        function removeThinkingMessage(thinkingId) {
+            const thinkingDiv = document.getElementById(thinkingId);
+            if (thinkingDiv) {
+                thinkingDiv.remove();
+            }
+        }
+        
+        // HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 格式化AI消息（支持简单的markdown）
+        function formatAIMessage(message) {
+            // 保护数学公式不被转义
+            const mathPlaceholders = [];
+            let formatted = message;
+            
+            // 临时替换数学公式
+            formatted = formatted.replace(/\\\[(.*?)\\\]/gs, (match, content) => {
+                const placeholder = `__MATH_DISPLAY_${mathPlaceholders.length}__`;
+                mathPlaceholders.push(match);
+                return placeholder;
+            });
+            
+            formatted = formatted.replace(/\\\((.*?)\\\)/gs, (match, content) => {
+                const placeholder = `__MATH_INLINE_${mathPlaceholders.length}__`;
+                mathPlaceholders.push(match);
+                return placeholder;
+            });
+            
+            // 转义HTML（除了数学公式）
+            formatted = escapeHtml(formatted);
+            
+            // 恢复数学公式
+            mathPlaceholders.forEach((math, index) => {
+                if (math.startsWith('\\[')) {
+                    formatted = formatted.replace(`__MATH_DISPLAY_${index}__`, math);
+                } else {
+                    formatted = formatted.replace(`__MATH_INLINE_${index}__`, math);
+                }
+            });
+            
+            // 简单的markdown支持
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // 粗体
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>'); // 斜体
+            formatted = formatted.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>'); // 代码
+            formatted = formatted.replace(/\n/g, '<br>'); // 换行
+            
+            return formatted;
+        }
+        
+        // 添加消息函数（供快速功能使用）
+        function addMessage(sender, message) {
+            addMessageToChat(message, sender);
+        }
+        
+        // 学习计时器功能
+        let studyTimer = null;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isTimerRunning = false;
+        
+        function initStudyTimer() {
+            const hoursSelect = document.getElementById('hours');
+            const minutesSelect = document.getElementById('minutes');
+            const startButton = document.getElementById('start-timer');
+            const pauseButton = document.getElementById('pause-timer');
+            const resetButton = document.getElementById('reset-timer');
+            const timerDisplay = document.getElementById('timer-display');
+            const timerStatus = document.getElementById('timer-status');
+            const progressBar = document.getElementById('progress-bar');
+            
+            // 从本地存储加载设置
+            const savedHours = localStorage.getItem('studyHours') || '0';
+            const savedMinutes = localStorage.getItem('studyMinutes') || '0';
+            hoursSelect.value = savedHours;
+            minutesSelect.value = savedMinutes;
+            
+            // 保存设置到本地存储
+            hoursSelect.addEventListener('change', function() {
+                localStorage.setItem('studyHours', this.value);
+            });
+            
+            minutesSelect.addEventListener('change', function() {
+                localStorage.setItem('studyMinutes', this.value);
+            });
+            
+            startButton.addEventListener('click', function() {
+                if (!isTimerRunning) {
+                    startStudyTimer();
+                } else {
+                    stopStudyTimer();
+                }
+            });
+            
+            pauseButton.addEventListener('click', function() {
+                if (isTimerRunning) {
+                    pauseStudyTimer();
+                }
+            });
+            
+            resetButton.addEventListener('click', function() {
+                resetStudyTimer();
+            });
+            
+            // 初始化按钮状态
+            pauseButton.style.opacity = '0.5';
+            pauseButton.disabled = true;
+            
+            function startStudyTimer() {
+                const hours = parseInt(hoursSelect.value);
+                const minutes = parseInt(minutesSelect.value);
+                
+                if (hours === 0 && minutes === 0) {
+                    alert('请设置学习时间！');
+                    return;
+                }
+                
+                if (remainingSeconds === 0) {
+                    totalSeconds = hours * 3600 + minutes * 60;
+                    remainingSeconds = totalSeconds;
+                }
+                
+                isTimerRunning = true;
+                
+                startButton.innerHTML = '<i class="fas fa-stop mr-1"></i>停止';
+                startButton.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+                startButton.classList.add('bg-red-500', 'hover:bg-red-600');
+                pauseButton.style.opacity = '1';
+                pauseButton.disabled = false;
+                timerStatus.textContent = '学习中';
+                
+                studyTimer = setInterval(function() {
+                    remainingSeconds--;
+                    updateDisplay();
+                    
+                    if (remainingSeconds <= 0) {
+                        completeTimer();
+                    }
+                }, 1000);
+            }
+            
+            function pauseStudyTimer() {
+                clearInterval(studyTimer);
+                isTimerRunning = false;
+                
+                startButton.innerHTML = '<i class="fas fa-play mr-1"></i>继续';
+                startButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                startButton.classList.add('bg-green-500', 'hover:bg-green-600');
+                pauseButton.style.opacity = '0.5';
+                pauseButton.disabled = true;
+                timerStatus.textContent = '已暂停';
+            }
+            
+            function stopStudyTimer() {
+                clearInterval(studyTimer);
+                isTimerRunning = false;
+                
+                // 计算实际学习时长（总时长 - 剩余时长）
+                const studiedSeconds = totalSeconds - remainingSeconds;
+                
+                remainingSeconds = 0;
+                
+                startButton.innerHTML = '<i class="fas fa-play mr-1"></i>开始';
+                startButton.classList.remove('bg-red-500', 'hover:bg-red-600', 'bg-green-500', 'hover:bg-green-600');
+                startButton.classList.add('bg-purple-500', 'hover:bg-purple-600');
+                pauseButton.style.opacity = '0.5';
+                pauseButton.disabled = true;
+                timerStatus.textContent = '已停止';
+                
+                // 同步学习时长到后端（只有学习时间大于30秒才记录）
+                if (studiedSeconds > 30) {
+                    syncStudyTimeToBackend(studiedSeconds);
+                }
+            }
+            
+            function resetStudyTimer() {
+                clearInterval(studyTimer);
+                isTimerRunning = false;
+                remainingSeconds = 0;
+                
+                startButton.innerHTML = '<i class="fas fa-play mr-1"></i>开始';
+                startButton.classList.remove('bg-red-500', 'hover:bg-red-600', 'bg-green-500', 'hover:bg-green-600');
+                startButton.classList.add('bg-purple-500', 'hover:bg-purple-600');
+                pauseButton.style.opacity = '0.5';
+                pauseButton.disabled = true;
+                timerStatus.textContent = '准备开始';
+                updateDisplay();
+            }
+            
+            function completeTimer() {
+                clearInterval(studyTimer);
+                isTimerRunning = false;
+                
+                // 计算实际学习时长（总时长 - 剩余时长）
+                const studiedSeconds = totalSeconds - remainingSeconds;
+                
+                remainingSeconds = 0;
+                
+                startButton.innerHTML = '<i class="fas fa-play mr-1"></i>开始';
+                startButton.classList.remove('bg-red-500', 'hover:bg-red-600', 'bg-green-500', 'hover:bg-green-600');
+                startButton.classList.add('bg-purple-500', 'hover:bg-purple-600');
+                pauseButton.style.opacity = '0.5';
+                pauseButton.disabled = true;
+                timerStatus.textContent = '已完成';
+                
+                // 同步学习时长到后端
+                if (studiedSeconds > 0) {
+                    syncStudyTimeToBackend(studiedSeconds);
+                }
+                
+                // 显示可爱的完成提示
+                showCompletionMessage();
+            }
+            
+            function showCompletionMessage() {
+                // 创建完成提示覆盖层
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                overlay.innerHTML = `
+                    <div class="bg-white rounded-lg p-8 text-center max-w-md mx-4 animate-bounce">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-2xl font-bold text-purple-600 mb-2">任务完成啦！</h2>
+                        <p class="text-gray-600 mb-4">今天也是好好学习的一天哦～</p>
+                        <div class="flex justify-center space-x-2 mb-4">
+                            <span class="text-2xl">✨</span>
+                            <span class="text-2xl">🌟</span>
+                            <span class="text-2xl">💖</span>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()" 
+                                class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                            继续加油！
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(overlay);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    if (overlay.parentElement) {
+                        overlay.remove();
+                    }
+                }, 5000);
+            }
+            
+            function updateDisplay() {
+                const hours = Math.floor(remainingSeconds / 3600);
+                const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                const seconds = remainingSeconds % 60;
+                
+                timerDisplay.textContent = 
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+                
+                // 更新进度条
+                const progress = totalSeconds > 0 ? ((totalSeconds - remainingSeconds) / totalSeconds) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            }
+            
+            // 同步学习时长到后端
+            async function syncStudyTimeToBackend(duration) {
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        console.log('用户未登录，无法同步学习时长');
+                        return;
+                    }
+                    
+                    const response = await fetch('http://localhost:5000/study-time', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            duration: duration,
+                            session_type: 'study'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('学习时长同步成功:', result);
+                        
+                        // 显示同步成功的提示
+                        showSyncSuccessMessage(duration, result.total_study_time);
+                    } else {
+                        console.error('学习时长同步失败:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('学习时长同步出错:', error);
+                }
+            }
+            
+            // 显示同步成功的消息
+            function showSyncSuccessMessage(duration, totalTime) {
+                const hours = Math.floor(duration / 3600);
+                const minutes = Math.floor((duration % 3600) / 60);
+                const totalHours = Math.floor(totalTime / 3600);
+                const totalMinutes = Math.floor((totalTime % 3600) / 60);
+                
+                const message = document.createElement('div');
+                message.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
+                message.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-lg mr-2">✅</span>
+                        <div>
+                            <div class="font-semibold">学习记录已保存！</div>
+                            <div class="text-sm">本次: ${hours}h ${minutes}m | 总计: ${totalHours}h ${totalMinutes}m</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(message);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    if (message.parentElement) {
+                        message.remove();
+                    }
+                }, 3000);
+            }
+        }
+        
+        // 快速功能管理
+        let activeFunction = null;
+        
+        function initQuickFunctions() {
+            const functionButtons = document.querySelectorAll('.quick-function-btn');
+            const functionStatus = document.getElementById('function-status');
+            const statusText = document.getElementById('status-text');
+            const calculator = document.getElementById('calculator');
+            
+            functionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const functionType = this.getAttribute('data-function');
+                    
+                    // 重置所有按钮状态
+                    functionButtons.forEach(btn => {
+                        btn.classList.remove('border-green-500', 'bg-green-100');
+                        btn.classList.add('border-gray-200');
+                    });
+                    
+                    // 隐藏计算器
+                    calculator.classList.add('hidden');
+                    
+                    if (activeFunction === functionType) {
+                        // 取消激活
+                        activeFunction = null;
+                        functionStatus.classList.add('hidden');
+                    } else {
+                        // 激活新功能
+                        activeFunction = functionType;
+                        this.classList.remove('border-gray-200');
+                        this.classList.add('border-green-500', 'bg-green-100');
+                        
+                        // 显示状态提示
+                        const functionNames = {
+                            'calculator': '计算器',
+                            'translator': '翻译助手',
+                            'creative': '创意灵感'
+                        };
+                        
+                        statusText.textContent = functionNames[functionType] + '已启用，请在聊天界面输入文本';
+                        functionStatus.classList.remove('hidden');
+                        
+                        // 如果是计算器，显示计算器界面
+                        if (functionType === 'calculator') {
+                            calculator.classList.remove('hidden');
+                            statusText.textContent = '计算器已启用';
+                        }
+                    }
+                });
+            });
+        }
+        
+        // 计算器功能
+        function clearCalculator() {
+            document.getElementById('calc-display').value = '0';
+        }
+        
+        function deleteLast() {
+            const display = document.getElementById('calc-display');
+            if (display.value.length > 1) {
+                display.value = display.value.slice(0, -1);
+            } else {
+                display.value = '0';
+            }
+        }
+        
+        function appendToDisplay(value) {
+            const display = document.getElementById('calc-display');
+            if (display.value === '0' && value !== '.') {
+                display.value = value;
+            } else {
+                display.value += value;
+            }
+        }
+        
+        function calculate() {
+            const display = document.getElementById('calc-display');
+            try {
+                // 替换显示的乘号为JavaScript乘号
+                const expression = display.value.replace(/×/g, '*');
+                const result = eval(expression);
+                display.value = result;
+            } catch (error) {
+                display.value = 'Error';
+                setTimeout(() => {
+                    display.value = '0';
+                }, 1500);
+            }
+        }
+        
+        // 待办事项功能
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        
+        function initTodoList() {
+            const addBtn = document.getElementById('add-todo-btn');
+            const newTodoInput = document.getElementById('new-todo-input');
+            const todoList = document.getElementById('todo-list');
+            
+            // 加载已保存的待办事项
+            loadTodos();
+            
+            // 添加新任务
+            addBtn.addEventListener('click', addTodo);
+            newTodoInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+            
+            function addTodo() {
+                const text = newTodoInput.value.trim();
+                if (text) {
+                    const todo = {
+                        id: Date.now(),
+                        text: text,
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    };
+                    todos.push(todo);
+                    saveTodos();
+                    renderTodos();
+                    newTodoInput.value = '';
+                }
+            }
+            
+            function loadTodos() {
+                // 只显示今天的任务
+                const today = new Date().toDateString();
+                todos = todos.filter(todo => {
+                    const todoDate = new Date(todo.createdAt).toDateString();
+                    return todoDate === today;
+                });
+                renderTodos();
+            }
+            
+            function renderTodos() {
+                // 清除示例任务，只在第一次渲染时
+                if (todos.length > 0) {
+                    todoList.innerHTML = '';
+                }
+                
+                todos.forEach(todo => {
+                    const todoElement = createTodoElement(todo);
+                    if (todos.length > 0 && todoList.children.length === 0) {
+                        todoList.innerHTML = '';
+                    }
+                    todoList.appendChild(todoElement);
+                });
+                
+                updateProgress();
+            }
+            
+            function createTodoElement(todo) {
+                const div = document.createElement('div');
+                div.className = 'todo-item flex items-center gap-2 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors';
+                div.innerHTML = `
+                    <input type="checkbox" class="todo-checkbox w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 rounded focus:ring-pink-500" ${todo.completed ? 'checked' : ''}>
+                    <span class="todo-text flex-1 text-sm text-gray-700 ${todo.completed ? 'line-through text-gray-500' : ''}">${todo.text}</span>
+                    <button class="delete-todo text-red-500 hover:text-red-700 text-xs">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                // 添加事件监听
+                const checkbox = div.querySelector('.todo-checkbox');
+                const deleteBtn = div.querySelector('.delete-todo');
+                
+                checkbox.addEventListener('change', function() {
+                    todo.completed = this.checked;
+                    const textSpan = div.querySelector('.todo-text');
+                    if (this.checked) {
+                        textSpan.classList.add('line-through', 'text-gray-500');
+                        textSpan.classList.remove('text-gray-700');
+                    } else {
+                        textSpan.classList.remove('line-through', 'text-gray-500');
+                        textSpan.classList.add('text-gray-700');
+                    }
+                    saveTodos();
+                    updateProgress();
+                });
+                
+                deleteBtn.addEventListener('click', function() {
+                    todos = todos.filter(t => t.id !== todo.id);
+                    saveTodos();
+                    div.remove();
+                    updateProgress();
+                });
+                
+                return div;
+            }
+            
+            function updateProgress() {
+                const total = todos.length;
+                const completed = todos.filter(todo => todo.completed).length;
+                const progressSpan = document.getElementById('todo-progress');
+                progressSpan.textContent = `${completed}/${total} 完成`;
+                
+                // 如果所有任务都完成了，显示庆祝效果
+                if (total > 0 && completed === total) {
+                    progressSpan.innerHTML = `<i class="fas fa-star text-yellow-500 mr-1"></i>${completed}/${total} 完成！`;
+                }
+            }
+            
+            function saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+        }
+        
+
+        
+        function showNotification(message, type = 'success') {
+            // 移除现有通知
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 创建新通知
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+                <button class="close-btn" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initLearningTools();
+            initStudyTimer();
+            initQuickFunctions();
+            initTodoList();
+            initAnalytics();
+            trackUserBehavior();
+        });
+    </script>
+    
+    <!-- 统一导航栏管理 -->
+    <!-- 统一导航栏组件 -->
+    <script src="js/unified-navbar.js"></script>
+    
+
+    
+    <!-- 版权信息 -->
+    <footer class="bg-gray-50 py-4 mt-8">
+        <div class="container mx-auto text-center text-gray-600 text-sm">
+            <p>© 2024 AI工具集合. 保留所有权利.</p>
+        </div>
+    </footer>
+</body>
+</html>

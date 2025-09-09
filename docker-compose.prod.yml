@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: myai-app-frontend
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    environment:
+      - NODE_ENV=production
+    networks:
+      - myai-network
+    depends_on:
+      - backend
+
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: myai-app-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+    env_file:
+      - .env.production
+    networks:
+      - myai-network
+    depends_on:
+      - redis
+
+
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: myai-app-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/etc/redis/redis.conf:ro
+    networks:
+      - myai-network
+    command: redis-server /etc/redis/redis.conf
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: myai-app-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./logs/nginx:/var/log/nginx
+    environment:
+      - DOMAIN=${DOMAIN:-myai-app.com}
+      - API_DOMAIN=${API_DOMAIN:-api.myai-app.com}
+    networks:
+      - myai-network
+    depends_on:
+      - frontend
+      - backend
+
+  # 监控服务（可选）
+  monitoring:
+    image: prom/prometheus:latest
+    container_name: myai-app-monitoring
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - myai-network
+    profiles:
+      - monitoring
+
+  # 日志收集（可选）
+  logrotate:
+    image: linkyard/docker-logrotate
+    container_name: myai-app-logrotate
+    restart: unless-stopped
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./logs:/logs
+    environment:
+      - LOGROTATE_INTERVAL=daily
+      - LOGROTATE_COPIES=7
+    profiles:
+      - logging
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  myai-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

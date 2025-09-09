@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卷王排名 - AI学习助手</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        .leaderboard-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .leaderboard-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+        }
+        .rank-item {
+            transition: all 0.3s ease;
+        }
+        .rank-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        .rank-1 { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%); }
+        .rank-other { background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%); }
+        .crown {
+            color: #ffd700;
+            font-size: 24px;
+            margin-left: 8px;
+        }
+        .trophy-gold {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .trophy-silver {
+            color: #c0c0c0;
+            text-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
+        }
+        .trophy-bronze {
+            color: #cd7f32;
+            text-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .study-progress {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .study-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="leaderboard-container p-4">
+    <!-- 统一导航栏将通过JavaScript动态插入 -->
+
+    <div class="max-w-4xl mx-auto">
+        <!-- 头部 -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mb-4">
+                <i class="fas fa-trophy text-white text-3xl"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2">卷王排名</h1>
+            <p class="text-white/80 text-lg">看看谁是最勤奋的学习者！</p>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="leaderboard-card rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2" id="totalUsers">-</div>
+                <div class="text-gray-600">总用户数</div>
+            </div>
+            <div class="leaderboard-card rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2" id="totalStudyTime">-</div>
+                <div class="text-gray-600">总学习时长</div>
+            </div>
+            <div class="leaderboard-card rounded-2xl p-6 text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-2" id="avgStudyTime">-</div>
+                <div class="text-gray-600">平均学习时长</div>
+            </div>
+        </div>
+
+        <!-- 排行榜 -->
+        <div class="leaderboard-card rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-medal mr-3 text-yellow-500"></i>
+                    学习时长排行榜
+                </h2>
+                <button 
+                    id="refreshBtn" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                >
+                    <i class="fas fa-sync-alt mr-2"></i>刷新
+                </button>
+            </div>
+
+            <!-- 加载状态 -->
+            <div id="loadingState" class="text-center py-12">
+                <i class="fas fa-spinner loading-spinner text-4xl text-blue-500 mb-4"></i>
+                <p class="text-gray-600">正在加载排行榜...</p>
+            </div>
+
+            <!-- 排行榜列表 -->
+            <div id="leaderboardList" class="space-y-4 hidden">
+                <!-- 排行榜项目将通过JavaScript动态生成 -->
+            </div>
+
+            <!-- 空状态 -->
+            <div id="emptyState" class="text-center py-12 hidden">
+                <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">暂无学习记录</p>
+                <p class="text-gray-500 text-sm mt-2">开始学习来上榜吧！</p>
+            </div>
+
+            <!-- 错误状态 -->
+            <div id="errorState" class="text-center py-12 hidden">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                <p class="text-red-600" id="errorMessage">加载失败</p>
+                <button 
+                    id="retryBtn" 
+                    class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                    重试
+                </button>
+            </div>
+        </div>
+
+        <!-- 返回按钮 -->
+        <div class="text-center mt-8">
+            <button 
+                id="backBtn" 
+                class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-colors backdrop-blur-sm"
+            >
+                <i class="fas fa-arrow-left mr-2"></i>返回
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // API基础URL
+        const API_BASE = 'http://localhost:5000/api/auth';
+        
+        // DOM元素
+        const loadingState = document.getElementById('loadingState');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const emptyState = document.getElementById('emptyState');
+        const errorState = document.getElementById('errorState');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const backBtn = document.getElementById('backBtn');
+        
+        // 显示加载状态
+        function showLoading() {
+            loadingState.classList.remove('hidden');
+            leaderboardList.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            errorState.classList.add('hidden');
+        }
+        
+        // 显示排行榜
+        function showLeaderboard() {
+            loadingState.classList.add('hidden');
+            leaderboardList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            errorState.classList.add('hidden');
+        }
+        
+        // 显示空状态
+        function showEmpty() {
+            loadingState.classList.add('hidden');
+            leaderboardList.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            errorState.classList.add('hidden');
+        }
+        
+        // 显示错误状态
+        function showError(message) {
+            loadingState.classList.add('hidden');
+            leaderboardList.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+        
+        // 获取排名徽章类名
+        function getRankBadgeClass(rank) {
+            switch (rank) {
+                case 1: return 'rank-1';
+                case 2: return 'rank-2';
+                case 3: return 'rank-3';
+                default: return 'rank-other';
+            }
+        }
+        
+        // 格式化学习时长
+        function formatStudyTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            if (hours > 0) {
+                return `${hours}小时${minutes}分钟`;
+            } else {
+                return `${minutes}分钟`;
+            }
+        }
+        
+        // 获取排名奖杯图标
+        function getRankTrophy(rank) {
+            switch (rank) {
+                case 1: return '<svg class="inline-block w-6 h-6 ml-2" title="冠军"><use href="assets/trophy-icons.svg#trophy-gold"></use></svg>';
+                case 2: return '<svg class="inline-block w-6 h-6 ml-2" title="亚军"><use href="assets/trophy-icons.svg#trophy-silver"></use></svg>';
+                case 3: return '<svg class="inline-block w-6 h-6 ml-2" title="季军"><use href="assets/trophy-icons.svg#trophy-bronze"></use></svg>';
+                default: return '';
+            }
+        }
+        
+        // 创建排行榜项目
+        function createLeaderboardItem(user, maxStudyTime) {
+            const progressPercent = maxStudyTime > 0 ? (user.study_time / maxStudyTime) * 100 : 0;
+            
+            return `
+                <div class="rank-item bg-white rounded-xl p-4 border border-gray-200">
+                    <div class="flex items-center space-x-4">
+                        <!-- 排名徽章 -->
+                        <div class="rank-badge ${getRankBadgeClass(user.rank)}">
+                            ${user.rank <= 3 ? '<i class="fas fa-medal"></i>' : user.rank}
+                        </div>
+                        
+                        <!-- 用户头像 -->
+                        <div class="avatar-circle">
+                            ${user.avatar_letter}
+                        </div>
+                        
+                        <!-- 用户信息 -->
+                        <div class="flex-1">
+                            <div class="flex items-center">
+                                <h3 class="font-bold text-gray-800">${user.username}</h3>
+                                ${getRankTrophy(user.rank)}
+                            </div>
+                            <div class="text-sm text-gray-600 mb-1">
+                                <i class="fas fa-school text-blue-500 mr-1"></i>${user.school || '未填写学校'}
+                            </div>
+                            <div class="text-sm text-gray-600 mb-2">
+                                <i class="fas fa-clock text-green-500 mr-1"></i>学习时长: ${user.study_hours}小时 (${formatStudyTime(user.study_time)})
+                            </div>
+                            <!-- 进度条 -->
+                            <div class="study-progress">
+                                <div class="study-progress-bar" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 学习时长显示 -->
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-blue-600">${user.study_hours}h</div>
+                            <div class="text-sm text-gray-500">第${user.rank}名</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 加载排行榜数据
+        async function loadLeaderboard() {
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/leaderboard?limit=50`);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const leaderboardData = result.data;
+                    
+                    if (leaderboardData.length === 0) {
+                        showEmpty();
+                        return;
+                    }
+                    
+                    // 计算统计信息
+                    const totalUsers = leaderboardData.length;
+                    const totalStudyTimeSeconds = leaderboardData.reduce((sum, user) => sum + user.study_time, 0);
+                    const totalStudyTimeHours = Math.round(totalStudyTimeSeconds / 3600 * 10) / 10;
+                    const avgStudyTimeHours = Math.round(totalStudyTimeHours / totalUsers * 10) / 10;
+                    const maxStudyTime = leaderboardData.length > 0 ? leaderboardData[0].study_time : 0;
+                    
+                    // 更新统计信息
+                    document.getElementById('totalUsers').textContent = totalUsers;
+                    document.getElementById('totalStudyTime').textContent = `${totalStudyTimeHours}h`;
+                    document.getElementById('avgStudyTime').textContent = `${avgStudyTimeHours}h`;
+                    
+                    // 生成排行榜HTML
+                    const leaderboardHTML = leaderboardData
+                        .map(user => createLeaderboardItem(user, maxStudyTime))
+                        .join('');
+                    
+                    leaderboardList.innerHTML = leaderboardHTML;
+                    showLeaderboard();
+                } else {
+                    showError(result.message || '加载排行榜失败');
+                }
+            } catch (error) {
+                console.error('加载排行榜失败:', error);
+                showError('网络连接失败，请检查网络设置');
+            }
+        }
+        
+        // 刷新排行榜
+        function refreshLeaderboard() {
+            const icon = refreshBtn.querySelector('i');
+            icon.classList.add('loading-spinner');
+            refreshBtn.disabled = true;
+            
+            loadLeaderboard().finally(() => {
+                icon.classList.remove('loading-spinner');
+                refreshBtn.disabled = false;
+            });
+        }
+        
+        // 事件监听
+        refreshBtn.addEventListener('click', refreshLeaderboard);
+        retryBtn.addEventListener('click', loadLeaderboard);
+        backBtn.addEventListener('click', () => {
+            window.history.back();
+        });
+        
+        // 页面加载时自动加载排行榜
+        window.addEventListener('load', loadLeaderboard);
+        
+        // 自动刷新（每30秒）
+        setInterval(loadLeaderboard, 30000);
+    </script>
+    
+    <!-- 统一导航栏组件 -->
+    <script src="js/unified-navbar.js"></script>
+</body>
+</html>

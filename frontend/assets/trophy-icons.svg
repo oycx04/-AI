@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <!-- 冠军奖杯 (金色) -->
+  <symbol id="trophy-gold" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+      </linearGradient>
+      <filter id="goldShadow">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#B8860B" flood-opacity="0.3"/>
+      </filter>
+    </defs>
+    <!-- 奖杯底座 -->
+    <rect x="30" y="75" width="40" height="8" fill="url(#goldGradient)" rx="2"/>
+    <rect x="25" y="83" width="50" height="6" fill="url(#goldGradient)" rx="3"/>
+    <!-- 奖杯杆 -->
+    <rect x="47" y="65" width="6" height="10" fill="url(#goldGradient)"/>
+    <!-- 奖杯主体 -->
+    <path d="M35 25 L35 55 Q35 65 45 65 L55 65 Q65 65 65 55 L65 25 Z" fill="url(#goldGradient)" filter="url(#goldShadow)"/>
+    <!-- 奖杯把手 -->
+    <path d="M25 35 Q20 35 20 40 L20 45 Q20 50 25 50" stroke="url(#goldGradient)" stroke-width="3" fill="none"/>
+    <path d="M75 35 Q80 35 80 40 L80 45 Q80 50 75 50" stroke="url(#goldGradient)" stroke-width="3" fill="none"/>
+    <!-- 装饰星星 -->
+    <polygon points="50,15 52,21 58,21 53,25 55,31 50,27 45,31 47,25 42,21 48,21" fill="#FFFF00"/>
+  </symbol>
+
+  <!-- 亚军奖杯 (银色) -->
+  <symbol id="trophy-silver" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#E5E5E5;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#C0C0C0;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#A9A9A9;stop-opacity:1" />
+      </linearGradient>
+      <filter id="silverShadow">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#808080" flood-opacity="0.3"/>
+      </filter>
+    </defs>
+    <!-- 奖杯底座 -->
+    <rect x="30" y="75" width="40" height="8" fill="url(#silverGradient)" rx="2"/>
+    <rect x="25" y="83" width="50" height="6" fill="url(#silverGradient)" rx="3"/>
+    <!-- 奖杯杆 -->
+    <rect x="47" y="65" width="6" height="10" fill="url(#silverGradient)"/>
+    <!-- 奖杯主体 -->
+    <path d="M35 25 L35 55 Q35 65 45 65 L55 65 Q65 65 65 55 L65 25 Z" fill="url(#silverGradient)" filter="url(#silverShadow)"/>
+    <!-- 奖杯把手 -->
+    <path d="M25 35 Q20 35 20 40 L20 45 Q20 50 25 50" stroke="url(#silverGradient)" stroke-width="3" fill="none"/>
+    <path d="M75 35 Q80 35 80 40 L80 45 Q80 50 75 50" stroke="url(#silverGradient)" stroke-width="3" fill="none"/>
+    <!-- 装饰圆圈 -->
+    <circle cx="50" cy="20" r="6" fill="#F0F0F0" stroke="#C0C0C0" stroke-width="1"/>
+    <text x="50" y="25" text-anchor="middle" font-size="8" fill="#808080" font-weight="bold">2</text>
+  </symbol>
+
+  <!-- 季军奖杯 (铜色) -->
+  <symbol id="trophy-bronze" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="bronzeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#CD7F32;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#B87333;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+      </linearGradient>
+      <filter id="bronzeShadow">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#8B4513" flood-opacity="0.3"/>
+      </filter>
+    </defs>
+    <!-- 奖杯底座 -->
+    <rect x="30" y="75" width="40" height="8" fill="url(#bronzeGradient)" rx="2"/>
+    <rect x="25" y="83" width="50" height="6" fill="url(#bronzeGradient)" rx="3"/>
+    <!-- 奖杯杆 -->
+    <rect x="47" y="65" width="6" height="10" fill="url(#bronzeGradient)"/>
+    <!-- 奖杯主体 -->
+    <path d="M35 25 L35 55 Q35 65 45 65 L55 65 Q65 65 65 55 L65 25 Z" fill="url(#bronzeGradient)" filter="url(#bronzeShadow)"/>
+    <!-- 奖杯把手 -->
+    <path d="M25 35 Q20 35 20 40 L20 45 Q20 50 25 50" stroke="url(#bronzeGradient)" stroke-width="3" fill="none"/>
+    <path d="M75 35 Q80 35 80 40 L80 45 Q80 50 75 50" stroke="url(#bronzeGradient)" stroke-width="3" fill="none"/>
+    <!-- 装饰三角形 -->
+    <polygon points="50,15 45,25 55,25" fill="#DAA520"/>
+    <text x="50" y="23" text-anchor="middle" font-size="6" fill="#8B4513" font-weight="bold">3</text>
+  </symbol>
+</svg>

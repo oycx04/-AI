@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - AI学习助手</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        .profile-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .profile-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+        }
+        .avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+        .stat-card.blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .stat-card.green {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stat-card.purple {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="profile-container min-h-screen">
+    <!-- 统一导航栏将通过JavaScript动态插入 -->
+    
+    <!-- 主要内容区域 -->
+    <div class="p-4 pt-32">
+    <div class="max-w-4xl mx-auto">
+        <!-- 头部 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">个人中心</h1>
+            <p class="text-white/80 text-lg">管理您的学习信息</p>
+        </div>
+
+        <!-- 用户信息卡片 -->
+        <div class="profile-card rounded-2xl p-8 mb-8">
+            <div class="text-center mb-8">
+                <div class="avatar-large mb-4" id="userAvatar">U</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2" id="userName">用户名</h2>
+                <p class="text-gray-600" id="userEmail">user@example.com</p>
+                <div class="mt-4">
+                    <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        注册时间: <span id="joinDate">2024-01-01</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 学习统计 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card blue">
+                    <div class="text-3xl font-bold mb-2" id="totalStudyTime">0</div>
+                    <div class="text-sm opacity-90">总学习时长(小时)</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="text-3xl font-bold mb-2" id="studyDays">0</div>
+                    <div class="text-sm opacity-90">学习天数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="text-3xl font-bold mb-2" id="currentRank">-</div>
+                    <div class="text-sm opacity-90">当前排名</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="text-3xl font-bold mb-2" id="avgDailyTime">0</div>
+                    <div class="text-sm">日均学习(分钟)</div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button 
+                    id="updateProfileBtn" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+                >
+                    <i class="fas fa-edit mr-2"></i>编辑资料
+                </button>
+                <button 
+                    id="viewLeaderboardBtn" 
+                    class="bg-purple-500 hover:bg-purple-600 text-white py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+                >
+                    <i class="fas fa-trophy mr-2"></i>查看排名
+                </button>
+                <button 
+                    id="logoutBtn" 
+                    class="bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+                >
+                    <i class="fas fa-sign-out-alt mr-2"></i>退出登录
+                </button>
+            </div>
+        </div>
+
+        <!-- 最近学习记录 -->
+        <div class="profile-card rounded-2xl p-6 mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-clock mr-3 text-blue-500"></i>
+                最近学习记录
+            </h3>
+            
+            <div id="studyRecords">
+                <!-- 加载状态 -->
+                <div id="recordsLoading" class="text-center py-8">
+                    <i class="fas fa-spinner loading-spinner text-2xl text-blue-500 mb-2"></i>
+                    <p class="text-gray-600">加载中...</p>
+                </div>
+                
+                <!-- 记录列表 -->
+                <div id="recordsList" class="space-y-3 hidden">
+                    <!-- 记录项目将通过JavaScript动态生成 -->
+                </div>
+                
+                <!-- 空状态 -->
+                <div id="recordsEmpty" class="text-center py-8 hidden">
+                    <i class="fas fa-book-open text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600">暂无学习记录</p>
+                    <p class="text-gray-500 text-sm mt-2">开始学习来记录您的进步吧！</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 返回按钮 -->
+        <div class="text-center">
+            <button 
+                id="backBtn" 
+                class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-colors backdrop-blur-sm"
+            >
+                <i class="fas fa-arrow-left mr-2"></i>返回
+            </button>
+        </div>
+    </div>
+
+    <!-- 编辑资料模态框 -->
+    <div id="editModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">编辑个人资料</h3>
+            
+            <form id="editForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">用户名</label>
+                    <input 
+                        type="text" 
+                        id="editUsername" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        placeholder="请输入用户名"
+                    >
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">邮箱</label>
+                    <input 
+                        type="email" 
+                        id="editEmail" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        placeholder="请输入邮箱"
+                    >
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button 
+                        type="button" 
+                        id="cancelEditBtn" 
+                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors"
+                    >
+                        取消
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-colors"
+                    >
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API基础URL
+        const API_BASE = 'http://localhost:5000/api/auth';
+        
+        // 获取用户信息
+        function getUserInfo() {
+            const userStr = localStorage.getItem('userInfo');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+        
+        // 获取用户Token
+        function getUserToken() {
+            return localStorage.getItem('userToken');
+        }
+        
+        // 检查登录状态
+        function checkAuth() {
+            const token = getUserToken();
+            const user = getUserInfo();
+            if (!token || !user) {
+                window.location.href = 'auth.html';
+                return false;
+            }
+            return true;
+        }
+        
+        // 格式化时间
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return hours > 0 ? `${hours}小时${minutes}分钟` : `${minutes}分钟`;
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+        
+        // 加载用户资料
+        async function loadUserProfile() {
+            const user = getUserInfo();
+            if (!user) return;
+            
+            try {
+                const token = getUserToken();
+                const response = await fetch(`${API_BASE}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const profile = result.data;
+                    
+                    // 更新用户信息显示
+                    document.getElementById('userAvatar').textContent = profile.username.charAt(0).toUpperCase();
+                    document.getElementById('userName').textContent = profile.username;
+                    document.getElementById('userEmail').textContent = profile.email;
+                    document.getElementById('joinDate').textContent = formatDate(profile.created_at);
+                    
+                    // 更新统计信息
+                    document.getElementById('totalStudyTime').textContent = Math.round(profile.total_study_time / 3600 * 10) / 10;
+                    document.getElementById('studyDays').textContent = profile.study_days || 0;
+                    document.getElementById('currentRank').textContent = profile.current_rank || '-';
+                    
+                    const avgDaily = profile.total_study_time && profile.study_days 
+                        ? Math.round(profile.total_study_time / profile.study_days / 60)
+                        : 0;
+                    document.getElementById('avgDailyTime').textContent = avgDaily;
+                    
+                } else {
+                    console.error('加载用户资料失败:', result.message);
+                }
+            } catch (error) {
+                console.error('加载用户资料失败:', error);
+            }
+        }
+        
+        // 加载学习记录
+        async function loadStudyRecords() {
+            const user = getUserInfo();
+            if (!user) return;
+            
+            const recordsLoading = document.getElementById('recordsLoading');
+            const recordsList = document.getElementById('recordsList');
+            const recordsEmpty = document.getElementById('recordsEmpty');
+            
+            try {
+                const response = await fetch(`${API_BASE}/study-records?limit=10`, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                recordsLoading.classList.add('hidden');
+                
+                if (result.status === 'success' && result.data.length > 0) {
+                    const recordsHTML = result.data.map(record => `
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-gray-800">${formatDate(record.study_date)}</div>
+                                <div class="text-sm text-gray-600">学习时长: ${formatTime(record.duration)}</div>
+                            </div>
+                            <div class="text-blue-600 font-bold">
+                                ${Math.round(record.duration / 60)}分钟
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    recordsList.innerHTML = recordsHTML;
+                    recordsList.classList.remove('hidden');
+                } else {
+                    recordsEmpty.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('加载学习记录失败:', error);
+                recordsLoading.classList.add('hidden');
+                recordsEmpty.classList.remove('hidden');
+            }
+        }
+        
+        // 显示编辑模态框
+        function showEditModal() {
+            const user = getUserInfo();
+            if (!user) return;
+            
+            document.getElementById('editUsername').value = user.username || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('flex');
+        }
+        
+        // 隐藏编辑模态框
+        function hideEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+        }
+        
+        // 更新用户资料
+        async function updateProfile(username, email) {
+            const user = getUserInfo();
+            if (!user) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${user.token}`
+                    },
+                    body: JSON.stringify({ username, email })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // 更新本地存储的用户信息
+                    user.username = username;
+                    user.email = email;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    // 重新加载页面数据
+                    loadUserProfile();
+                    hideEditModal();
+                    
+                    alert('资料更新成功！');
+                } else {
+                    alert(result.message || '更新失败');
+                }
+            } catch (error) {
+                console.error('更新资料失败:', error);
+                alert('网络错误，请稍后重试');
+            }
+        }
+        
+        // 退出登录（已由统一导航栏管理）
+        // function logout() {
+        //     if (confirm('确定要退出登录吗？')) {
+        //         localStorage.removeItem('userToken');
+        //         localStorage.removeItem('userInfo');
+        //         window.location.href = 'auth.html';
+        //     }
+        // }
+        
+        // 事件监听
+        document.getElementById('updateProfileBtn').addEventListener('click', showEditModal);
+        document.getElementById('cancelEditBtn').addEventListener('click', hideEditModal);
+        document.getElementById('viewLeaderboardBtn').addEventListener('click', () => {
+            window.location.href = 'leaderboard.html';
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (typeof window.logout === 'function') {
+                window.logout();
+            } else {
+                // 备用退出逻辑
+                if (confirm('确定要退出登录吗？')) {
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userInfo');
+                    window.location.href = 'auth.html';
+                }
+            }
+        });
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.history.back();
+        });
+        
+        // 编辑表单提交
+        document.getElementById('editForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('editUsername').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            
+            if (!username || !email) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            updateProfile(username, email);
+        });
+        
+        // 页面加载时检查登录状态并加载数据
+        window.addEventListener('load', () => {
+            if (checkAuth()) {
+                loadUserProfile();
+                loadStudyRecords();
+            }
+        });
+    </script>
+    
+    <!-- 统一导航栏组件 -->
+    <script src="js/unified-navbar.js"></script>
+    </div> <!-- 关闭主要内容区域 -->
+    </div> <!-- 关闭最大宽度容器 -->
+</body>
+</html>

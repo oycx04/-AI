@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI个性化学习路径生成器</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('assets/learning-background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .form-section {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            position: relative;
+        }
+
+        .form-section::after {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: url('assets/education-icons.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            border-radius: 50%;
+        }
+
+        .result-section {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-left: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .form-control select {
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-btn .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .generate-btn .btn-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .generate-btn.loading .btn-text {
+            opacity: 0;
+        }
+
+        .generate-btn.loading .btn-loading {
+            display: block;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-placeholder {
+            text-align: center;
+            color: #9ca3af;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        .result-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: url('assets/education-icons.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            border-radius: 50%;
+        }
+
+        .result-placeholder .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .result-placeholder h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #6b7280;
+        }
+
+        .result-placeholder p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* 思考过程样式 */
+        .thinking-process {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thinking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .thinking-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .thinking-indicator {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .thinking-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: thinking-pulse 1.5s infinite;
+        }
+        
+        .thinking-indicator .dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .thinking-indicator .dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes thinking-pulse {
+            0%, 60%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            30% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        .thinking-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        
+        .thinking-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 12px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+            animation: step-appear 0.5s ease-out;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thinking-step.complete {
+            border-left-color: #22c55e;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .step-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .step-text {
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        @keyframes step-appear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 滚动条样式 */
+        .thinking-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .thinking-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        .thinking-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .thinking-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 学习路径结果样式 */
+        .learning-path-result {
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        .learning-path-result::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: url('assets/education-icons.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .path-overview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .path-overview h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .path-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .meta-item .label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .meta-item .value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .learning-stages {
+            margin-top: 25px;
+        }
+
+        .stage-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stage-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .stage-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .stage-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .stage-duration {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .stage-content {
+            padding: 20px;
+        }
+
+        .stage-description {
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .learning-objectives {
+            margin-bottom: 20px;
+        }
+
+        .objectives-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            padding: 5px 0;
+            color: #6b7280;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .resources-section {
+            margin-top: 20px;
+        }
+
+        .resources-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .resource-item {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .resource-item:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+
+        .resource-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .resource-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .resource-type, .resource-time, .resource-difficulty {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .resource-type {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .resource-time {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .resource-difficulty.easy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .resource-difficulty.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .resource-difficulty.hard {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .resource-description {
+            color: #6b7280;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .resource-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .resource-link:hover {
+            text-decoration: underline;
+        }
+
+        .milestone-section {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .milestone-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .milestone-content {
+            color: #78350f;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .tips-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .tips-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .tips-content {
+            color: #1e3a8a;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .result-section {
+                border-left: none;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-section, .result-section {
+                padding: 20px;
+            }
+
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .path-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 统一导航栏将通过JavaScript动态插入 -->
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        
+        <div class="main-content">
+            <div class="form-section">
+                <form id="learningForm">
+                    <div class="form-group">
+                        <label for="subject">📚 学习领域</label>
+                        <input type="text" id="subject" class="form-control" placeholder="例如：Python编程、英语口语、数据分析..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="level">📊 当前水平</label>
+                        <select id="level" class="form-control" required>
+                            <option value="">请选择您的当前水平</option>
+                            <option value="beginner">🌱 初学者 - 刚开始接触</option>
+                            <option value="intermediate">🌿 中级 - 有一定基础</option>
+                            <option value="advanced">🌳 高级 - 经验丰富</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timeAvailable">⏰ 可投入时间</label>
+                        <select id="timeAvailable" class="form-control" required>
+                            <option value="">请选择您的时间安排</option>
+                            <option value="1hour">⚡ 每天1小时</option>
+                            <option value="2hours">🔥 每天2小时</option>
+                            <option value="3hours">💪 每天3小时</option>
+                            <option value="weekend">📅 仅周末学习</option>
+                            <option value="flexible">🎯 时间灵活安排</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goal">🚀 学习目标</label>
+                        <textarea id="goal" class="form-control" rows="3" placeholder="请详细描述您的学习目标，例如：希望在3个月内掌握Python基础，能够独立完成数据分析项目..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preferences">💡 学习偏好（可选）</label>
+                        <textarea id="preferences" class="form-control" rows="2" placeholder="例如：喜欢视频教程、偏好实践项目、需要中文资源等..." ></textarea>
+                    </div>
+                    
+                    <button type="submit" class="generate-btn" id="generateBtn">
+                        <span class="btn-text">🎯 生成专属学习路径</span>
+                        <div class="btn-loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="result-section">
+                <div id="resultContainer">
+                    <div class="result-placeholder">
+                        <div class="icon">🎯</div>
+                        <h3>准备开始您的学习之旅</h3>
+                        <p>填写左侧表单，AI将为您生成个性化的学习路径。<br>我们会实时展示AI的思考过程，让您了解路径是如何为您量身定制的。</p>
+                        <p style="color: #f59e0b; font-weight: 600; margin-top: 15px; font-size: 0.9rem;">💡 温馨提示：AI工作量很大，需要等待5-7分钟，同志你可以先去学习喔~</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('learningForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                subject: document.getElementById('subject').value,
+                level: document.getElementById('level').value,
+                timeAvailable: document.getElementById('timeAvailable').value,
+                goal: document.getElementById('goal').value,
+                preferences: document.getElementById('preferences').value
+            };
+            
+            // 验证必填字段
+            if (!formData.subject || !formData.level || !formData.timeAvailable || !formData.goal) {
+                alert('请填写所有必填字段！');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // 设置加载状态
+            generateBtn.classList.add('loading');
+            generateBtn.disabled = true;
+            
+            // 清空结果区域并显示思考过程
+            resultContainer.innerHTML = `
+                <div class="thinking-process">
+                    <div class="thinking-header">
+                        <h3>🤔 AI思考过程</h3>
+                        <div class="thinking-indicator">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                    <div class="thinking-content" id="thinkingContent"></div>
+                </div>
+            `;
+            
+            const thinkingContent = document.getElementById('thinkingContent');
+            
+            try {
+                // 使用fetch进行流式请求
+                const response = await fetch('http://localhost:5000/generate_learning_path_stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                console.log('流式连接已建立');
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                
+                                if (data.type === 'start' || data.type === 'thinking' || data.type === 'generating') {
+                                    // 添加思考步骤
+                                    const stepDiv = document.createElement('div');
+                                    stepDiv.className = 'thinking-step';
+                                    stepDiv.innerHTML = `
+                                        <div class="step-icon">${getStepIcon(data.type)}</div>
+                                        <div class="step-text">${data.message}</div>
+                                    `;
+                                    thinkingContent.appendChild(stepDiv);
+                                    thinkingContent.scrollTop = thinkingContent.scrollHeight;
+                                } else if (data.type === 'complete') {
+                                    // 标记最后一步为完成
+                                    const lastStep = thinkingContent.lastElementChild;
+                                    if (lastStep) {
+                                        lastStep.classList.add('complete');
+                                    }
+                                    
+                                    // 显示最终结果
+                                    setTimeout(() => {
+                                        displayLearningPath(data.data);
+                                    }, 1000);
+                                    return;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.message);
+                                }
+                            } catch (parseError) {
+                                console.error('解析流数据失败:', parseError);
+                            }
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                console.error('流式请求失败:', error);
+                // 回退到普通POST请求
+                fallbackToRegularRequest(formData);
+            } finally {
+                // 恢复按钮状态
+                setTimeout(() => {
+                    generateBtn.classList.remove('loading');
+                    generateBtn.disabled = false;
+                }, 2000);
+            }
+        });
+        
+        // 回退到普通POST请求的函数
+        async function fallbackToRegularRequest(formData) {
+            try {
+                const response = await fetch('http://localhost:5000/generate_learning_path', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`服务器错误 (${response.status})`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayLearningPath(result.data);
+                } else {
+                    throw new Error(result.error || '生成学习路径失败');
+                }
+            } catch (error) {
+                console.error('请求失败:', error);
+                document.getElementById('resultContainer').innerHTML = `
+                    <div class="result-placeholder">
+                        <div class="icon">❌</div>
+                        <h3>生成失败</h3>
+                        <p>抱歉，生成学习路径时出现错误：${error.message}<br>请检查网络连接或稍后重试。</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 获取步骤图标
+        function getStepIcon(type) {
+            const icons = {
+                'start': '🚀',
+                'thinking': '💭',
+                'generating': '⚡',
+                'complete': '✅'
+            };
+            return icons[type] || '🔄';
+        }
+        
+        // 显示学习路径结果
+        function displayLearningPath(pathData) {
+            const resultContainer = document.getElementById('resultContainer');
+            
+            let html = `
+                <div class="learning-path-result">
+                    <div class="path-overview">
+                        <h2>📋 您的专属学习路径</h2>
+                        <p>${pathData.overview}</p>
+                        <div class="path-meta">
+                            <div class="meta-item">
+                                <div class="label">总时长</div>
+                                <div class="value">${pathData.total_duration}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="label">难度等级</div>
+                                <div class="value">${getDifficultyLabel(pathData.difficulty_level)}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="label">学习阶段</div>
+                                <div class="value">${pathData.stages.length} 个阶段</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="learning-stages">
+            `;
+            
+            pathData.stages.forEach((stage, index) => {
+                html += `
+                    <div class="stage-item">
+                        <div class="stage-header">
+                            <div class="stage-title">阶段 ${index + 1}: ${stage.title}</div>
+                            <div class="stage-duration">⏱️ ${stage.duration}</div>
+                        </div>
+                        <div class="stage-content">
+                            <div class="stage-description">${stage.description}</div>
+                            
+                            <div class="learning-objectives">
+                                <div class="objectives-title">🎯 学习目标</div>
+                                <ul class="objectives-list">
+                                    ${stage.learning_objectives.map(obj => `<li>${obj}</li>`).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div class="resources-section">
+                                <div class="resources-title">📚 推荐资源</div>
+                                <div class="resource-grid">
+                                    ${stage.resources.map(resource => `
+                                        <div class="resource-item">
+                                            <div class="resource-title">${resource.title}</div>
+                                            <div class="resource-meta">
+                                                <span class="resource-type">${getResourceTypeLabel(resource.type)}</span>
+                                                <span class="resource-time">${resource.estimated_time}</span>
+                                                <span class="resource-difficulty ${resource.difficulty}">${getDifficultyLabel(resource.difficulty)}</span>
+                                            </div>
+                                            <div class="resource-description">${resource.description}</div>
+                                            ${resource.url ? `<a href="${resource.url}" target="_blank" class="resource-link">🔗 访问资源</a>` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="milestone-section">
+                                <div class="milestone-title">🏆 完成标志</div>
+                                <div class="milestone-content">${stage.milestone}</div>
+                            </div>
+                            
+                            <div class="tips-section">
+                                <div class="tips-title">💡 学习建议</div>
+                                <div class="tips-content">${stage.tips}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    
+                    <div class="path-overview" style="margin-top: 30px;">
+                        <h2>🎯 成功指标</h2>
+                        <p>${pathData.success_metrics}</p>
+                        
+                        <h2 style="margin-top: 20px;">🚀 下一步建议</h2>
+                        <p>${pathData.next_steps}</p>
+                    </div>
+                </div>
+            `;
+            
+            resultContainer.innerHTML = html;
+        }
+        
+        // 获取难度标签
+        function getDifficultyLabel(difficulty) {
+            const labels = {
+                'beginner': '🌱 初级',
+                'intermediate': '🌿 中级', 
+                'advanced': '🌳 高级',
+                'easy': '简单',
+                'medium': '中等',
+                'hard': '困难'
+            };
+            return labels[difficulty] || difficulty;
+        }
+        
+        // 获取资源类型标签
+        function getResourceTypeLabel(type) {
+            const labels = {
+                'video': '📹 视频',
+                'course': '📚 课程',
+                'article': '📄 文章',
+                'book': '📖 书籍',
+                'practice': '💻 练习',
+                'project': '🛠️ 项目',
+                'tool': '🔧 工具'
+            };
+            return labels[type] || type;
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面初始化完成
+        });
+    </script>
+    
+    <!-- 统一导航栏组件 -->
+    <script src="js/unified-navbar.js"></script>
+</body>
+</html>

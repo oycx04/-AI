@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站统计管理平台</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        // 配置将在 analytics-config.js 中动态设置
+    </script>
+    
+    <!-- 百度统计 -->
+    <script>
+        var _hmt = _hmt || [];
+        // 将在配置文件加载后初始化
+    </script>
+    
+    <!-- 统计配置文件 -->
+    <script src="analytics-config.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .data-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .refresh-btn {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- 统一导航栏将通过JavaScript动态插入 -->
+    
+    <!-- 管理页面专用工具栏 -->
+    <div class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                    <h1 class="text-xl font-bold text-gray-800">网站统计管理平台</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- 数据库状态显示 -->
+                    <div class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg">
+                        <i id="dbStatusIcon" class="fas fa-database text-gray-600"></i>
+                        <span id="dbStatusText" class="text-sm text-gray-700">检查中...</span>
+                    </div>
+                    
+                    <!-- PostgreSQL数据库状态 -->
+                    <div class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg">
+                        <i id="pgStatusIcon" class="fas fa-database text-gray-600"></i>
+                        <span id="pgStatusText" class="text-sm text-gray-700">PostgreSQL检查中...</span>
+                    </div>
+                    
+                    <!-- PostgreSQL管理按钮 -->
+                    <div class="relative">
+                        <button id="pgManageBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-cogs mr-2"></i>PostgreSQL管理
+                        </button>
+                        <div id="pgManageMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border hidden z-10">
+                            <button id="testPgConnection" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-lg">
+                                <i class="fas fa-plug mr-2 text-blue-600"></i>测试连接
+                            </button>
+                            <button id="reconnectPg" class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                                <i class="fas fa-sync mr-2 text-green-600"></i>重新连接
+                            </button>
+                            <button id="refreshPgStatus" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-lg">
+                                <i class="fas fa-refresh mr-2 text-purple-600"></i>刷新状态
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据库切换按钮 -->
+                    <div class="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+                        <i class="fas fa-database mr-2"></i>PostgreSQL 数据库
+                    </div>
+                    
+                    <button id="refreshBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button id="exportBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 统计概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80">总事件数</p>
+                        <p id="totalEvents" class="text-3xl font-bold">-</p>
+                    </div>
+                    <i class="fas fa-chart-bar text-3xl opacity-80"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80">今日事件</p>
+                        <p id="todayEvents" class="text-3xl font-bold">-</p>
+                    </div>
+                    <i class="fas fa-calendar-day text-3xl opacity-80"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80">本周事件</p>
+                        <p id="weekEvents" class="text-3xl font-bold">-</p>
+                    </div>
+                    <i class="fas fa-calendar-week text-3xl opacity-80"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80">用户行为</p>
+                        <p id="totalBehaviors" class="text-3xl font-bold">-</p>
+                    </div>
+                    <i class="fas fa-users text-3xl opacity-80"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 事件类型分布 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-pie-chart mr-2 text-blue-600"></i>
+                    事件类型分布
+                </h3>
+                <div class="chart-container">
+                    <canvas id="eventTypesChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 用户行为统计 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-chart-bar mr-2 text-green-600"></i>
+                    用户行为统计
+                </h3>
+                <div class="chart-container">
+                    <canvas id="behaviorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 热门页面和功能 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 热门页面 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-fire mr-2 text-red-600"></i>
+                    热门页面
+                </h3>
+                <div class="data-table">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">页面URL</th>
+                                <th class="px-4 py-2 text-right">访问次数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pageViewsTable">
+                            <tr><td colspan="2" class="px-4 py-8 text-center text-gray-500">加载中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 热门功能 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-star mr-2 text-yellow-600"></i>
+                    热门功能
+                </h3>
+                <div class="data-table">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">功能名称</th>
+                                <th class="px-4 py-2 text-right">使用次数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="featureUsageTable">
+                            <tr><td colspan="2" class="px-4 py-8 text-center text-gray-500">加载中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 实时事件流 -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <i class="fas fa-stream mr-2 text-purple-600"></i>
+                最近事件
+                <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">实时</span>
+            </h3>
+            <div class="data-table">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left">时间</th>
+                            <th class="px-4 py-2 text-left">事件类型</th>
+                            <th class="px-4 py-2 text-left">页面</th>
+                            <th class="px-4 py-2 text-left">详情</th>
+                            <th class="px-4 py-2 text-left">IP地址</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentEventsTable">
+                        <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventTypesChart, behaviorChart;
+        
+        // 初始化图表
+        function initCharts() {
+            // 事件类型饼图
+            const eventCtx = document.getElementById('eventTypesChart').getContext('2d');
+            eventTypesChart = new Chart(eventCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // 用户行为柱状图
+            const behaviorCtx = document.getElementById('behaviorChart').getContext('2d');
+            behaviorChart = new Chart(behaviorCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '行为次数',
+                        data: [],
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#36A2EB',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载仪表板数据
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('http://localhost:5000/api/analytics/dashboard');
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    throw new Error(data.message);
+                }
+                
+                // 更新统计卡片
+                document.getElementById('totalEvents').textContent = data.summary.total_events.toLocaleString();
+                document.getElementById('todayEvents').textContent = data.summary.today_events.toLocaleString();
+                document.getElementById('weekEvents').textContent = data.summary.week_events.toLocaleString();
+                document.getElementById('totalBehaviors').textContent = data.summary.total_behaviors.toLocaleString();
+                
+                // 更新事件类型图表
+                eventTypesChart.data.labels = Object.keys(data.event_types);
+                eventTypesChart.data.datasets[0].data = Object.values(data.event_types);
+                eventTypesChart.update();
+                
+                // 更新用户行为图表
+                behaviorChart.data.labels = Object.keys(data.behavior_stats);
+                behaviorChart.data.datasets[0].data = Object.values(data.behavior_stats);
+                behaviorChart.update();
+                
+                // 更新热门页面表格
+                updateTable('pageViewsTable', data.page_views, (url, count) => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2 truncate" title="${url}">${url.length > 50 ? url.substring(0, 50) + '...' : url}</td>
+                        <td class="px-4 py-2 text-right font-semibold">${count.toLocaleString()}</td>
+                    </tr>
+                `);
+                
+                // 更新热门功能表格
+                updateTable('featureUsageTable', data.feature_usage, (feature, count) => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2">${feature}</td>
+                        <td class="px-4 py-2 text-right font-semibold">${count.toLocaleString()}</td>
+                    </tr>
+                `);
+                
+                // 更新最近事件表格
+                const recentEventsHtml = data.recent_events.map(event => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2 text-xs">${new Date(event.timestamp).toLocaleString()}</td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">${event.event_type || 'unknown'}</span>
+                        </td>
+                        <td class="px-4 py-2 text-xs truncate" title="${event.page_url || ''}">${(event.page_url || '').length > 30 ? (event.page_url || '').substring(0, 30) + '...' : (event.page_url || '')}</td>
+                        <td class="px-4 py-2 text-xs">${event.event_label || event.event_action || '-'}</td>
+                        <td class="px-4 py-2 text-xs">${event.ip || '-'}</td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('recentEventsTable').innerHTML = recentEventsHtml || '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">暂无数据</td></tr>';
+                
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                alert('加载数据失败: ' + error.message);
+            }
+        }
+        
+        // 更新表格
+        function updateTable(tableId, data, rowGenerator) {
+            const table = document.getElementById(tableId);
+            if (Object.keys(data).length === 0) {
+                table.innerHTML = '<tr><td colspan="2" class="px-4 py-8 text-center text-gray-500">暂无数据</td></tr>';
+                return;
+            }
+            
+            const html = Object.entries(data).map(([key, value]) => rowGenerator(key, value)).join('');
+            table.innerHTML = html;
+        }
+        
+        // 导出数据
+        async function exportData() {
+            if (typeof trackEvent === 'function') {
+                trackEvent('export_data', {
+                    event_category: 'admin',
+                    event_action: 'export',
+                    event_label: 'json'
+                });
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/analytics/export');
+                const data = await response.json();
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `analytics_export_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败: ' + error.message);
+            }
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            if (typeof trackEvent === 'function') {
+                trackEvent('refresh_dashboard', {
+                    event_category: 'admin',
+                    event_action: 'refresh',
+                    event_label: 'dashboard_data'
+                });
+            }
+            
+            const btn = document.getElementById('refreshBtn');
+            const icon = btn.querySelector('i');
+            
+            icon.classList.add('refresh-btn');
+            btn.disabled = true;
+            
+            loadDashboardData().finally(() => {
+                icon.classList.remove('refresh-btn');
+                btn.disabled = false;
+            });
+        }
+        
+        // 数据库状态管理 - 仅支持PostgreSQL
+        async function checkDatabaseStatus() {
+            // 已移除MongoDB支持，仅显示PostgreSQL状态
+            console.log('数据库状态检查已简化为PostgreSQL模式');
+        }
+        
+        // PostgreSQL状态管理
+        async function checkPostgreSQLStatus() {
+            try {
+                const response = await fetch('http://localhost:5000/api/analytics/database/postgresql/status');
+                const data = await response.json();
+                
+                const statusIcon = document.getElementById('pgStatusIcon');
+                const statusText = document.getElementById('pgStatusText');
+                
+                if (data.status === 'connected') {
+                    statusIcon.className = 'fas fa-database text-green-600';
+                    statusText.textContent = 'PostgreSQL已连接';
+                } else {
+                    statusIcon.className = 'fas fa-database text-red-600';
+                    statusText.textContent = 'PostgreSQL未连接';
+                }
+            } catch (error) {
+                console.error('检查PostgreSQL状态失败:', error);
+                const statusIcon = document.getElementById('pgStatusIcon');
+                const statusText = document.getElementById('pgStatusText');
+                statusIcon.className = 'fas fa-exclamation-triangle text-red-600';
+                statusText.textContent = 'PostgreSQL连接错误';
+            }
+        }
+        
+        // 测试PostgreSQL连接
+        async function testPostgreSQLConnection() {
+            try {
+                const response = await fetch('http://localhost:5000/api/analytics/database/postgresql/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert('✅ PostgreSQL连接测试成功！\n' + data.message);
+                } else {
+                    alert('❌ PostgreSQL连接测试失败！\n' + data.message);
+                }
+                await checkPostgreSQLStatus();
+            } catch (error) {
+                console.error('测试PostgreSQL连接失败:', error);
+                alert('❌ 测试失败: ' + error.message);
+            }
+        }
+        
+        // 重连PostgreSQL
+        async function reconnectPostgreSQL() {
+            try {
+                const response = await fetch('http://localhost:5000/api/analytics/database/postgresql/reconnect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert('✅ ' + data.message);
+                    await checkPostgreSQLStatus();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                console.error('重连PostgreSQL失败:', error);
+                alert('❌ 重连失败: ' + error.message);
+            }
+        }
+        
+        // 使用配置文件中的函数
+        // initAnalytics, trackEvent, trackBehavior 函数已在 analytics-config.js 中定义
+        
+        // 管理员页面特定的统计初始化
+        function initAdminAnalytics() {
+            // 追踪管理员页面访问
+            trackEvent('admin_page_view', {
+                event_category: 'admin',
+                event_action: 'page_view',
+                event_label: 'analytics_dashboard',
+                page_title: document.title
+            });
+            
+            // 追踪管理员行为
+            trackBehavior('admin_access', {
+                access_type: 'dashboard',
+                user_role: 'admin',
+                page_title: document.title
+            });
+            
+            console.log('管理员统计服务已初始化');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            loadDashboardData();
+            checkDatabaseStatus(); // 检查数据库状态
+            checkPostgreSQLStatus(); // 检查PostgreSQL状态
+            
+            // 初始化统计服务
+            if (typeof initAnalytics === 'function') {
+                initAnalytics();
+            }
+            initAdminAnalytics();
+            
+            // 绑定事件
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            
+            // MongoDB相关功能已移除，仅保留PostgreSQL支持
+            
+            // PostgreSQL管理相关事件
+            const pgManageBtn = document.getElementById('pgManageBtn');
+            const pgManageMenu = document.getElementById('pgManageMenu');
+            
+            // PostgreSQL管理菜单显示/隐藏
+            pgManageBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                pgManageMenu.classList.toggle('hidden');
+            });
+            
+            // 点击其他地方隐藏PostgreSQL管理菜单
+            document.addEventListener('click', function() {
+                pgManageMenu.classList.add('hidden');
+            });
+            
+            // 阻止PostgreSQL管理菜单内部点击事件冒泡
+            pgManageMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // 测试PostgreSQL连接
+            document.getElementById('testPgConnection').addEventListener('click', function() {
+                pgManageMenu.classList.add('hidden');
+                testPostgreSQLConnection();
+            });
+            
+            // 重连PostgreSQL
+            document.getElementById('reconnectPg').addEventListener('click', function() {
+                pgManageMenu.classList.add('hidden');
+                reconnectPostgreSQL();
+            });
+            
+            // 刷新PostgreSQL状态
+            document.getElementById('refreshPgStatus').addEventListener('click', function() {
+                pgManageMenu.classList.add('hidden');
+                checkPostgreSQLStatus();
+            });
+            
+            // 自动刷新（每30秒）
+            setInterval(loadDashboardData, 30000);
+            
+            // 定期检查PostgreSQL状态（每60秒）
+            setInterval(checkPostgreSQLStatus, 60000);
+        });
+    </script>
+    
+    <!-- 统一导航栏组件 -->
+    <script src="../js/unified-navbar.js"></script>
+</body>
+</html>

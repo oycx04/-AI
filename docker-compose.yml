@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  ai-app:
+    build: .
+    ports:
+      - "5000:5000"  # 后端API端口
+      - "8000:8000"  # 前端静态文件端口
+    environment:
+      - FLASK_ENV=production
+      - PYTHONPATH=/app
+      - APP_NAME=卷王AI
+      - DEBUG=false
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ai-app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - ai-app
+    restart: unless-stopped
+    networks:
+      - ai-app-network
+
+networks:
+  ai-app-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local
