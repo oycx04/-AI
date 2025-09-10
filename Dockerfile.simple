@@ -1,0 +1,28 @@
+# 简化的Docker镜像构建
+FROM nginx:alpine
+
+# 安装Python
+RUN apk add --no-cache python3 py3-pip
+
+# 复制前端文件
+COPY frontend/ /usr/share/nginx/html/
+
+# 复制后端文件
+COPY backend/ /app/backend/
+
+# 安装Python依赖
+WORKDIR /app/backend
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# 复制nginx配置
+COPY nginx/nginx.simple.conf /etc/nginx/nginx.conf
+
+# 创建启动脚本
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'cd /app/backend && python3 app.py &' >> /start.sh && \
+    echo 'nginx -g "daemon off;"' >> /start.sh && \
+    chmod +x /start.sh
+
+EXPOSE 80 5000
+
+CMD ["/start.sh"]
