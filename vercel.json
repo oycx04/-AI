@@ -5,14 +5,10 @@
       "runtime": "python3.9"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/backend/app.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
+      "source": "/api/(.*)",
+      "destination": "/backend/app.py"
     }
   ],
   "env": {
@@ -20,11 +16,5 @@
     "JWT_SECRET_KEY": "@jwt_secret_key",
     "REDIS_URL": "@redis_url"
   },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/app.py"
-    }
-  ],
   "outputDirectory": "frontend"
 }
