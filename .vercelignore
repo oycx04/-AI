@@ -1,0 +1,60 @@
+# 排除不必要的文件和目录
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+
+# 项目特定文件
+node_modules/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# 上传和生成的文件
+uploads/
+generated_images/
+logs/
+*.log
+
+# Docker相关
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# 部署脚本
+deploy*.sh
+deploy*.ps1
+start*.bat
+start*.ps1
+monitor.sh
+ssl-*.sh
+check-*.sh
+
+# 文档和说明
+*.md
+!README.md
+
+# 配置文件
+nginx.conf
+nginx/
+redis/
+.env.production
