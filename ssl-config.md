@@ -214,7 +214,7 @@ class ProductionConfig:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     
     # 数据库配置
-    MONGODB_URI = os.environ.get('MONGODB_URI') or 'mongodb://localhost:27017/myai_app'
+    POSTGRESQL_URI = os.environ.get('POSTGRESQL_URI') or 'postgresql://localhost:5432/myai_app'
 ```
 
 ### 3. 更新统计配置

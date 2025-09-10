@@ -41,22 +41,17 @@ docker-compose --profile production up -d
 
 ## 数据库配置
 
-### MongoDB连接
+### PostgreSQL数据库连接
 
-1. 编辑 `backend/config.py`
-2. 更新 `MONGODB_URI` 为你的MongoDB连接字符串
-3. 如果连接失败，系统会自动使用本地文件存储
+1. 系统已配置使用PostgreSQL数据库
+2. 当前使用Neon PostgreSQL云服务
+3. 如需更改数据库连接，请更新 `config.py` 中的 `POSTGRESQL_URI`
 
-### 当前配置的MongoDB
+### 当前配置的PostgreSQL
 
 ```
-mongodb+srv://1184053958_db_user:pumG4uidb95xZhzf@cluster0.wapqtqm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+postgresql://neondb_owner:npg_dTRX2E5ZJMCV@ep-steep-thunder-a12o3gri-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
-
-**注意：** 如果认证失败，请检查：
-- 用户名和密码是否正确
-- 数据库用户权限是否足够
-- 网络连接是否正常
 
 ## SSL证书获取
 

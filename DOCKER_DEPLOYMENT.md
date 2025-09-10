@@ -18,7 +18,7 @@
 - **管理面板**: http://localhost:8000/admin-analytics.html
 
 ### 数据库状态
-- MongoDB连接失败（SSL握手错误）
+- 数据库连接已迁移到PostgreSQL
 - 自动切换到本地文件存储模式
 - 数据保存在容器内的 `/app/backend/data/` 目录
 
@@ -70,7 +70,7 @@ docker-compose up --build -d
 ## 🚀 生产环境建议
 
 1. **SSL证书配置**: 配置有效的SSL证书用于HTTPS访问
-2. **MongoDB修复**: 解决MongoDB SSL连接问题
+2. **数据库优化**: PostgreSQL连接池配置优化
 3. **数据持久化**: 配置数据卷确保数据不丢失
 4. **监控配置**: 添加容器健康检查和监控
 5. **备份策略**: 定期备份数据和配置文件
@@ -79,7 +79,7 @@ docker-compose up --build -d
 
 - 容器使用本地文件存储，重启容器可能丢失数据
 - 建议配置数据卷映射到宿主机
-- MongoDB连接问题需要检查网络和SSL配置
+- PostgreSQL数据库连接稳定，支持SSL安全连接
 - 生产环境建议使用专业的WSGI服务器替代Flask开发服务器
 
 ---

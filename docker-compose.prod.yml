@@ -12,7 +12,6 @@ services:
       - "8000:80"
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     environment:
       - NODE_ENV=production
@@ -69,7 +68,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.simple.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
       - ./frontend:/usr/share/nginx/html:ro
       - ./logs/nginx:/var/log/nginx
