@@ -9,7 +9,7 @@ API_KEY = "your-api-key-here"
 API_BASE_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
 
 # PostgreSQL数据库配置
-POSTGRESQL_URI = "postgresql://neondb_owner:npg_dTRX2E5ZJMCV@ep-steep-thunder-a12o3gri-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+POSTGRESQL_URI = "postgresql://neondb_owner:npg_dTRX2E5ZJMCV@ep-steep-thunder-a12o3gri-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 DATABASE_TYPE = "postgresql"
 
 # 服务器配置
