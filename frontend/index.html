@@ -335,15 +335,14 @@
         }
         
         /* 广告位响应式优化 */
-        @media (max-width: 768px) {
-            #left-banner-ad {
-                display: none; /* 移动端隐藏左侧广告 */
-            }
-            
+        @media (max-width: 1024px) {
+            #left-banner-ad,
             #sidebar-ad {
-                display: none; /* 移动端隐藏右侧悬浮广告 */
+                display: none; /* 平板和移动端隐藏左右侧广告 */
             }
-            
+        }
+        
+        @media (max-width: 768px) {
             .ad-container {
                 width: 100% !important;
                 max-width: 300px;
@@ -357,6 +356,14 @@
             /* 移动端调整主要内容区域边距 */
             .pt-32.p-4.pl-48 {
                 padding-left: 1rem !important;
+            }
+        }
+        
+        /* 确保广告位不会遮挡主要内容 */
+        @media (min-width: 1025px) {
+            .main-content {
+                margin-left: 180px;
+                margin-right: 180px;
             }
         }
         
@@ -795,42 +802,40 @@
     <i class="fas fa-pencil-alt decoration pencil text-6xl bottom-20 right-10"></i>
     <i class="fas fa-school decoration building text-9xl bottom-10 left-1/4"></i>
     
-    <!-- 左侧广告位 -->
-    <div class="fixed top-20 left-4 z-40 bg-white shadow-lg rounded-lg border border-gray-200" style="width: 160px;">
-        <div class="p-2">
-            <div id="left-banner-ad" class="bg-gradient-to-b from-yellow-50 to-orange-50 rounded-lg p-2 border border-yellow-200 ad-hover">
-                <!-- 百度联盟广告代码位置 -->
-                <script type="text/javascript">
-                    // 百度联盟广告代码
-                    /*
-                    (function() {
-                        var cpro_id = "u6849608"; // 替换为实际的百度联盟ID
-                        var cpro_w = 160;
-                        var cpro_h = 600;
-                        var s = document.createElement("script");
-                        s.type = "text/javascript";
-                        s.charset = "UTF-8";
-                        s.src = "//cpro.baidustatic.com/cpro/ui/c.js";
-                        document.getElementsByTagName("head")[0].appendChild(s);
-                    })();
-                    */
-                </script>
-                <!-- 临时占位内容 -->
-                <div class="text-center text-gray-500 py-4">
-                    <i class="fas fa-graduation-cap text-2xl mb-2 block"></i>
-                    <p class="text-xs font-medium mb-2">🎓 考研培训</p>
-                    <p class="text-xs mb-2">📚 在线辅导</p>
-                    <p class="text-xs mb-2">🚀 提升学历</p>
-                    <p class="text-xs opacity-70">160x600 广告位</p>
-                </div>
+    <!-- 左侧悬浮广告位 -->
+    <div class="fixed left-4 top-1/2 transform -translate-y-1/2 z-30">
+        <div id="left-banner-ad" class="bg-white rounded-lg shadow-xl border border-gray-200 p-2 w-36 hover:shadow-2xl transition-shadow duration-300 ad-hover">
+            <!-- 百度联盟广告代码位置 -->
+            <script type="text/javascript">
+                // 百度联盟广告代码
+                /*
+                (function() {
+                    var cpro_id = "u6849608"; // 替换为实际的百度联盟ID
+                    var cpro_w = 140;
+                    var cpro_h = 280;
+                    var s = document.createElement("script");
+                    s.type = "text/javascript";
+                    s.charset = "UTF-8";
+                    s.src = "//cpro.baidustatic.com/cpro/ui/c.js";
+                    document.getElementsByTagName("head")[0].appendChild(s);
+                })();
+                */
+            </script>
+            <!-- 临时占位内容 -->
+            <div class="text-center text-gray-500 py-4">
+                <i class="fas fa-graduation-cap text-2xl mb-2 block text-blue-500"></i>
+                <p class="text-xs font-medium mb-2">🎓 考研培训</p>
+                <p class="text-xs mb-2">📚 在线辅导</p>
+                <p class="text-xs mb-2">🚀 提升学历</p>
+                <p class="text-xs opacity-70">140x280 广告位</p>
             </div>
         </div>
     </div>
 
     <!-- 主要内容区域 -->
-    <div class="pt-32 p-4 pl-48 flex items-center justify-center min-h-screen">
-        <div class="content-container w-full max-w-4xl">
-        <div class="w-full max-w-2xl mx-auto" id="chatContent">
+    <div class="pt-32 p-4 flex items-center justify-center min-h-screen">
+        <div class="content-container w-full max-w-6xl mx-auto">
+        <div class="w-full max-w-4xl mx-auto" id="chatContent">
         <!-- 聊天头部 -->
         <div class="header rounded-t-2xl p-4 flex items-center justify-center">
             <div class="flex items-center space-x-3">
@@ -868,9 +873,9 @@
         </div>
         
         <!-- 学习工具区域 -->
-        <div class="mt-6 flex gap-6">
+        <div class="mt-8 flex gap-8 justify-center">
             <!-- 左侧功能区 -->
-            <div class="flex-1 space-y-4">
+            <div class="flex-1 max-w-md space-y-6">
                 <!-- 学习计时器 -->
                 <div class="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center mb-3">
@@ -945,35 +950,10 @@
                 </div>
             </div>
 
-            <!-- 中间广告位1 - 360联盟 -->
-            <div class="w-48 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-2 shadow-lg border border-gray-100 flex flex-col items-center justify-center ad-container ad-hover">
-                <!-- 360联盟广告代码位置 -->
-                <script type="text/javascript">
-                    // 360联盟广告代码
-                    /*
-                    (function() {
-                        var _360_ad_id = "your_360_ad_id"; // 替换为实际的360联盟ID
-                        var _360_ad_w = 200;
-                        var _360_ad_h = 400;
-                        var s = document.createElement("script");
-                        s.type = "text/javascript";
-                        s.src = "//s.lianmeng.360.cn/so/ad.js";
-                        document.getElementsByTagName("head")[0].appendChild(s);
-                    })();
-                    */
-                </script>
-                <!-- 临时占位内容 -->
-                <div class="text-gray-400 text-center p-2">
-                    <i class="fas fa-book text-2xl mb-2 text-blue-500"></i>
-                    <p class="text-xs font-medium mb-1">📖 学习资料</p>
-                    <p class="text-xs mb-1">考研必备</p>
-                    <p class="text-xs text-blue-600">点击获取</p>
-                    <p class="text-xs mt-2">200x400 360联盟</p>
-                </div>
-            </div>
+
 
             <!-- 右侧功能区 -->
-            <div class="flex-1 space-y-4">
+            <div class="flex-1 max-w-md space-y-6">
                 <!-- 待办事情 -->
                 <div class="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center mb-3">
@@ -1032,56 +1012,31 @@
                 </div>
             </div>
 
-            <!-- 中间广告位2 - 搜狗联盟 -->
-            <div class="w-48 bg-gradient-to-br from-green-50 to-yellow-50 rounded-xl p-2 shadow-lg border border-gray-100 flex flex-col items-center justify-center ad-container ad-hover">
-                <!-- 搜狗联盟广告代码位置 -->
-                <script type="text/javascript">
-                    // 搜狗联盟广告代码
-                    /*
-                    (function() {
-                        var sogou_ad_id = "your_sogou_ad_id"; // 替换为实际的搜狗联盟ID
-                        var sogou_ad_w = 200;
-                        var sogou_ad_h = 400;
-                        var s = document.createElement("script");
-                        s.type = "text/javascript";
-                        s.src = "//theta.sogoucdn.com/wap/js/aw.js";
-                        document.getElementsByTagName("head")[0].appendChild(s);
-                    })();
-                    */
-                </script>
-                <!-- 临时占位内容 -->
-                <div class="text-gray-400 text-center p-2">
-                    <i class="fas fa-user-graduate text-2xl mb-2 text-green-500"></i>
-                    <p class="text-xs font-medium mb-1">🎯 复读辅导</p>
-                    <p class="text-xs mb-1">名师指导</p>
-                    <p class="text-xs text-green-600">立即咨询</p>
-                    <p class="text-xs mt-2">200x400 搜狗联盟</p>
-                </div>
-            </div>
+
         </div>
 
         <!-- 快速功能区域 -->
-        <div class="mt-6 bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <div class="mt-8 bg-white rounded-xl p-8 shadow-lg border border-gray-100 max-w-4xl mx-auto">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center justify-center">
                 <i class="fas fa-magic text-purple-500 mr-2"></i>
                 快速功能
             </h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 text-center group" data-function="calculator">
-                    <i class="fas fa-calculator text-2xl text-blue-500 mb-2 group-hover:scale-110 transition-transform"></i>
-                    <div class="text-sm font-medium text-gray-700">计算器</div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <button class="quick-function-btn p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 text-center group" data-function="calculator">
+                    <i class="fas fa-calculator text-3xl text-blue-500 mb-3 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-base font-medium text-gray-700">计算器</div>
                 </button>
-                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 text-center group" data-function="translator">
-                    <i class="fas fa-language text-2xl text-green-500 mb-2 group-hover:scale-110 transition-transform"></i>
-                    <div class="text-sm font-medium text-gray-700">翻译助手</div>
+                <button class="quick-function-btn p-4 rounded-lg border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 text-center group" data-function="translator">
+                    <i class="fas fa-language text-3xl text-green-500 mb-3 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-base font-medium text-gray-700">翻译助手</div>
                 </button>
-                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-200 text-center group" data-function="creative">
-                    <i class="fas fa-lightbulb text-2xl text-red-500 mb-2 group-hover:scale-110 transition-transform"></i>
-                    <div class="text-sm font-medium text-gray-700">创意灵感</div>
+                <button class="quick-function-btn p-4 rounded-lg border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all duration-200 text-center group" data-function="creative">
+                    <i class="fas fa-lightbulb text-3xl text-red-500 mb-3 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-base font-medium text-gray-700">创意灵感</div>
                 </button>
-                <button class="quick-function-btn p-3 rounded-lg border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 text-center group" onclick="window.location.href='learning-path-generator.html'">
-                    <i class="fas fa-route text-2xl text-purple-500 mb-2 group-hover:scale-110 transition-transform"></i>
-                    <div class="text-sm font-medium text-gray-700">学习路径生成器</div>
+                <button class="quick-function-btn p-4 rounded-lg border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 text-center group" onclick="window.location.href='learning-path-generator.html'">
+                    <i class="fas fa-route text-3xl text-purple-500 mb-3 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-base font-medium text-gray-700">学习路径生成器</div>
                 </button>
             </div>
             
@@ -1129,10 +1084,10 @@
     </div>
     
     <!-- 底部横幅广告位 -->
-    <div class="bg-white border-t border-gray-200 py-6 mt-8">
+    <div class="bg-white border-t border-gray-200 py-4 mt-8">
         <div class="container mx-auto px-4">
             <div class="flex justify-center">
-                <div id="bottom-banner-ad" class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-3 border border-green-200 max-w-4xl w-full text-center ad-hover">
+                <div id="bottom-banner-ad" class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-3 border border-green-200 max-w-5xl w-full text-center ad-hover">
                     <!-- 腾讯广点通广告代码位置 -->
                     <script type="text/javascript">
                         // 腾讯广点通广告代码
@@ -1140,7 +1095,7 @@
                         (function() {
                             var gdt_ad_id = "your_gdt_ad_id"; // 替换为实际的广点通ID
                             var gdt_ad_w = 970;
-                            var gdt_ad_h = 250;
+                            var gdt_ad_h = 200;
                             var s = document.createElement("script");
                             s.type = "text/javascript";
                             s.src = "//vm.gtimg.cn/tencentvideo/txp/js/txplayer.js";
@@ -1149,14 +1104,14 @@
                         */
                     </script>
                     <!-- 临时占位内容 -->
-                    <div class="text-gray-600 py-3">
-                        <i class="fas fa-book-open text-2xl mb-3 text-green-600"></i>
-                        <h3 class="text-xl font-bold mb-2 text-gray-800">🎓 专业考研辅导 | 名师在线授课 | 高效提分方案</h3>
-                        <p class="text-sm mb-3">💡 个性化学习计划 | 📚 海量题库资源 | 🏆 历年高分学员推荐</p>
-                        <button class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-6 py-2 rounded-full hover:from-blue-600 hover:to-green-600 transition-all duration-300 shadow-lg">
+                    <div class="text-gray-600 py-2">
+                        <i class="fas fa-book-open text-xl mb-2 text-green-600"></i>
+                        <h3 class="text-lg font-bold mb-2 text-gray-800">🎓 专业考研辅导 | 名师在线授课 | 高效提分方案</h3>
+                        <p class="text-sm mb-2">💡 个性化学习计划 | 📚 海量题库资源 | 🏆 历年高分学员推荐</p>
+                        <button class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-4 py-1.5 rounded-full hover:from-blue-600 hover:to-green-600 transition-all duration-300 shadow-lg text-sm">
                             立即了解课程 →
                         </button>
-                        <p class="text-xs mt-3 text-gray-400">970x250 腾讯广点通</p>
+                        <p class="text-xs mt-2 text-gray-400">970x200 腾讯广点通</p>
                     </div>
                 </div>
             </div>
@@ -1182,12 +1137,12 @@
                 */
             </script>
             <!-- 临时占位内容 -->
-            <div class="text-center text-gray-600 p-2">
-                <i class="fas fa-lightbulb text-2xl mb-2 text-yellow-500"></i>
-                <p class="text-xs font-bold mb-1 text-gray-800">📚 学历提升</p>
-                <p class="text-xs mb-1">在线课程</p>
-                <p class="text-xs text-blue-600 font-medium">点击咨询</p>
-                <p class="text-xs mt-2 text-gray-400">140x280 穿山甲</p>
+            <div class="text-center text-gray-500 py-4">
+                <i class="fas fa-laptop-code text-2xl mb-2 block text-purple-500"></i>
+                <p class="text-xs font-medium mb-2">💻 编程培训</p>
+                <p class="text-xs mb-2">🔥 热门课程</p>
+                <p class="text-xs mb-2">⭐ 名师授课</p>
+                <p class="text-xs opacity-70">140x280 广告位</p>
             </div>
         </div>
     </div>
