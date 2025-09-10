@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/**/*",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "backend/app.py",
-      "use": "@vercel/python"
+  "functions": {
+    "backend/app.py": {
+      "runtime": "python3.9"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -25,9 +20,11 @@
     "JWT_SECRET_KEY": "@jwt_secret_key",
     "REDIS_URL": "@redis_url"
   },
-  "functions": {
-    "backend/app.py": {
-      "runtime": "python3.9"
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/app.py"
     }
-  }
+  ],
+  "outputDirectory": "frontend"
 }
