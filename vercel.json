@@ -21,8 +21,8 @@
     }
   ],
   "env": {
-    "DATABASE_URL": "postgresql://neondb_owner:npg_dTRX2E5ZJMCV@ep-steep-thunder-a12o3gri-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
-    "JWT_SECRET_KEY": "your-super-secret-jwt-key-minimum-32-characters-long-for-security",
-    "REDIS_URL": "redis://localhost:6379/0"
+    "DATABASE_TYPE": "simple",
+    "JWT_SECRET_KEY": "vercel-demo-secret-key",
+    "FLASK_ENV": "production"
   }
 }
