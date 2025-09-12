@@ -54,11 +54,11 @@ function New-DeploymentPackage {
                 break
             }
         }
-        return !$shouldExclude -and !$item.PSIsContainer
+        (-not $shouldExclude) -and (-not $item.PSIsContainer)
     }
     
     # 创建ZIP包
-    Compress-Archive -Path $files -DestinationPath "ai-app-deploy.zip" -Force
+    Compress-Archive -Path $files.FullName -DestinationPath "ai-app-deploy.zip" -Force
     
     Write-Host "✅ 部署包创建完成: ai-app-deploy.zip" -ForegroundColor Green
 }
@@ -76,8 +76,8 @@ function Show-DeploymentInstructions {
     
     Write-Host "\n3️⃣ 在服务器上执行:" -ForegroundColor Cyan
     Write-Host "   cd /root" -ForegroundColor White
-    Write-Host "   unzip ai-app-deploy.zip" -ForegroundColor White
-    Write-Host "   cd ai应用（1）" -ForegroundColor White
+    Write-Host "   unzip -o ai-app-deploy.zip -d ai-app" -ForegroundColor White
+    Write-Host "   cd ai-app" -ForegroundColor White
     Write-Host "   chmod +x deploy-aliyun.sh" -ForegroundColor White
     Write-Host "   ./deploy-aliyun.sh" -ForegroundColor White
     
@@ -158,7 +158,7 @@ function Main {
     $openGuide = Read-Host "\n是否打开详细部署指南？(y/n)"
     if ($openGuide -eq 'y' -or $openGuide -eq 'Y') {
         if (Test-Path "阿里云部署指南.md") {
-            Start-Process "阿里云部署指南.md"
+            Invoke-Item "阿里云部署指南.md"
         }
     }
 }
